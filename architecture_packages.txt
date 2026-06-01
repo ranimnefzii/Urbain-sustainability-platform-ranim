@@ -1,0 +1,186 @@
+# Architecture des Packages - Projet Urbain Sustainability
+# Système Intelligent de Signalement des Problèmes Urbains
+
+## Architecture Globale du Projet
+
+```
+urbain-sustainability-project/
+├── backend/                          # FastAPI Python Backend
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py                   # Point d'entrée FastAPI
+│   │   ├── core/                     # Configuration et sécurité
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py             # Variables d'environnement
+│   │   │   ├── security.py           # Authentification & JWT
+│   │   │   ├── database.py           # Configuration BDD
+│   │   │   └── dependencies.py       # Dépendances globales
+│   │   ├── models/                   # Modèles de données
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py              # Modèle Utilisateur
+│   │   │   ├── signal.py            # Modèle Signalement
+│   │   │   ├── category.py          # Catégories de problèmes
+│   │   │   ├── priority.py          # Niveaux de priorité
+│   │   │   └── report.py            # Rapports IA
+│   │   ├── schemas/                  # Pydantic Schemas (DTO)
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py
+│   │   │   ├── signal.py
+│   │   │   ├── category.py
+│   │   │   └── report.py
+│   │   ├── api/                      # Routes API
+│   │   │   ├── __init__.py
+│   │   │   ├── v1/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── auth.py           # Authentification
+│   │   │   │   ├── users.py          # Gestion utilisateurs
+│   │   │   │   ├── signals.py        # Signalements
+│   │   │   │   ├── categories.py     # Catégories
+│   │   │   │   ├── reports.py        # Rapports IA
+│   │   │   │   └── admin.py          # Administration
+│   │   │   └── deps.py               # Dépendances API
+│   │   ├── services/                 # Logique métier
+│   │   │   ├── __init__.py
+│   │   │   ├── user_service.py       # Service utilisateurs
+│   │   │   ├── signal_service.py     # Service signalements
+│   │   │   ├── ai_service.py         # Service IA classification
+│   │   │   ├── notification_service.py # Service notifications
+│   │   │   ├── email_service.py      # Service emails
+│   │   │   └── map_service.py        # Service cartographie
+│   │   ├── repositories/             # Accès données (Repository Pattern)
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py              # Repository de base
+│   │   │   ├── user_repository.py
+│   │   │   ├── signal_repository.py
+│   │   │   └── category_repository.py
+│   │   ├── utils/                    # Utilitaires
+│   │   │   ├── __init__.py
+│   │   │   ├── validators.py         # Validateurs personnalisés
+│   │   │   ├── helpers.py           # Fonctions utilitaires
+│   │   │   └── constants.py         # Constantes du projet
+│   │   └── tests/                    # Tests unitaires
+│   │       ├── __init__.py
+│   │       ├── conftest.py          # Configuration tests
+│   │       ├── test_auth.py
+│   │       ├── test_signals.py
+│   │       └── test_ai_service.py
+│   ├── requirements.txt              # Dépendances Python
+│   ├── .env.example                 # Variables environnement
+│   ├── alembic.ini                  # Migration BDD
+│   └── alembic/                     # Scripts migration
+├── frontend/                         # Template Frontend (React/Vue)
+│   ├── public/
+│   ├── src/
+│   │   ├── components/              # Composants réutilisables
+│   │   ├── pages/                   # Pages principales
+│   │   ├── services/                # Services API
+│   │   ├── hooks/                   # Hooks personnalisés
+│   │   ├── utils/                   # Utilitaires
+│   │   └── styles/                  # Styles CSS/SCSS
+│   ├── package.json
+│   └── README.md
+├── middleware/                       # Services intermédiaires
+│   ├── ai-classification/           # Service IA classification
+│   │   ├── app.py
+│   │   ├── model.py
+│   │   └── requirements.txt
+│   ├── notification-service/        # Service notifications
+│   │   ├── app.py
+│   │   └── requirements.txt
+│   └── email-service/               # Service emails
+│       ├── app.py
+│       └── requirements.txt
+├── database/                         # Scripts BDD
+│   ├── init.sql                     # Script initialisation
+│   └── seed_data.sql                # Données initiales
+├── docs/                            # Documentation
+│   ├── api/                         # Documentation API
+│   ├── deployment/                  # Guide déploiement
+│   └── user_guide/                  # Guide utilisateur
+├── docker-compose.yml               # Conteneurs Docker
+├── .gitignore
+└── README.md                        # Documentation projet
+```
+
+## Détails des Packages Backend
+
+### 1. Core Package
+- **config.py**: Gestion variables environnement, settings
+- **security.py**: JWT, bcrypt, OAuth2, permissions
+- **database.py**: Connection PostgreSQL/MongoDB, sessions
+- **dependencies.py**: Injection dépendances FastAPI
+
+### 2. Models Package (SQLAlchemy)
+- **user.py**: Entité User (citoyen, admin, secteur)
+- **signal.py**: Entité Signal (détails signalement)
+- **category.py**: Entité Category (type problèmes urbains)
+- **priority.py**: Entité Priority (niveaux urgence)
+- **report.py**: Entité Report (rapports générés par IA)
+
+### 3. Schemas Package (Pydantic)
+- Validation des données entrantes/sortantes
+- DTOs pour chaque entité
+- Sérialisation/désérialisation API
+
+### 4. API Package (FastAPI Router)
+- **auth.py**: Login, register, refresh token
+- **users.py**: CRUD utilisateurs, profils
+- **signals.py**: CRUD signalements, géolocalisation
+- **categories.py**: Gestion catégories problèmes
+- **reports.py**: Rapports IA, analytics
+- **admin.py**: Tableau de bord administration
+
+### 5. Services Package (Logique Métier)
+- **ai_service.py**: Classification IA, priorisation
+- **notification_service.py**: Push notifications, alertes
+- **email_service.py**: Emails automatiques, templates
+- **map_service.py**: Intégration Google Maps, géocoding
+
+### 6. Repositories Package (Data Access)
+- Pattern Repository pour abstraction BDD
+- Séparation logique métier / accès données
+- Support PostgreSQL avec SQLAlchemy
+
+## Technologies Backend
+
+- **Framework**: FastAPI (Python 3.9+)
+- **Base de données**: PostgreSQL + Redis (cache)
+- **ORM**: SQLAlchemy 2.0
+- **Authentification**: JWT + OAuth2
+- **Validation**: Pydantic V2
+- **Tests**: Pytest + Factory Boy
+- **Documentation**: OpenAPI/Swagger automatique
+- **Migration**: Alembic
+- **Containerisation**: Docker + Docker Compose
+
+## Architecture Patterns
+
+- **Clean Architecture**: Séparation des responsabilités
+- **Repository Pattern**: Abstraction accès données
+- **Dependency Injection**: FastAPI built-in
+- **Service Layer**: Logique métier isolée
+- **CQRS**: Read/Write separation (si nécessaire)
+
+## Sécurité
+
+- JWT tokens avec refresh mechanism
+- Password hashing avec bcrypt
+- Rate limiting sur endpoints critiques
+- CORS configuration
+- Input validation avec Pydantic
+- SQL injection prevention (SQLAlchemy)
+
+## Performance
+
+- Async/await avec FastAPI
+- Redis cache pour données fréquemment accédées
+- Database connection pooling
+- Pagination automatique
+- Background tasks pour emails/notifications
+
+## Monitoring & Logging
+
+- Structured logging avec Python logging
+- Health checks endpoints
+- Metrics avec Prometheus (optionnel)
+- Error tracking avec Sentry (optionnel)
