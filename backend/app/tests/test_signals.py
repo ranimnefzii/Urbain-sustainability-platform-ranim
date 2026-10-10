@@ -82,14 +82,14 @@ class TestCreateSignal:
                 "city": "Tunis",
             },
         }
-        response = await async_client.post("/api/v1/signals/", json=payload, headers=auth_headers)
+        response = await async_client.post("/api/v1/signals", json=payload, headers=auth_headers)
         assert response.status_code == status.HTTP_201_CREATED
         data = response.json()
         assert data["success"] is True
 
     async def test_create_signal_missing_fields(self, async_client: AsyncClient, auth_headers: dict):
         payload = {"title": "Missing fields test"}
-        response = await async_client.post("/api/v1/signals/", json=payload, headers=auth_headers)
+        response = await async_client.post("/api/v1/signals", json=payload, headers=auth_headers)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     async def test_create_signal_invalid_location(self, async_client: AsyncClient, auth_headers: dict):
@@ -102,7 +102,7 @@ class TestCreateSignal:
                 "longitude": 500,
             },
         }
-        response = await async_client.post("/api/v1/signals/", json=payload, headers=auth_headers)
+        response = await async_client.post("/api/v1/signals", json=payload, headers=auth_headers)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
@@ -120,19 +120,19 @@ class TestGetSignal:
 
 class TestListSignals:
     async def test_list_signals(self, async_client: AsyncClient, auth_headers: dict, test_signal):
-        response = await async_client.get("/api/v1/signals/", headers=auth_headers)
+        response = await async_client.get("/api/v1/signals", headers=auth_headers)
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert data["success"] is True
         assert len(data["data"]["items"]) >= 1
 
     async def test_list_signals_pagination(self, async_client: AsyncClient, auth_headers: dict):
-        response = await async_client.get("/api/v1/signals/?page=1&size=10", headers=auth_headers)
+        response = await async_client.get("/api/v1/signals?page=1&size=10", headers=auth_headers)
         assert response.status_code == status.HTTP_200_OK
 
     async def test_list_signals_filtered(self, async_client: AsyncClient, auth_headers: dict):
         response = await async_client.get(
-            "/api/v1/signals/?status=submitted", headers=auth_headers
+            "/api/v1/signals?status=submitted", headers=auth_headers
         )
         assert response.status_code == status.HTTP_200_OK
 

@@ -1,0 +1,243 @@
+# Figure 3 : Diagramme de Classes UML
+## Modele de donnees complet — Urbain Sustainability System
+
+Creer un diagramme UML de classes professionnel montrant une forte cohesion intra-groupe et un faible couplage inter-groupe. Utiliser 4 groupes visuels (rectangles en pointilles) avec fonds de couleurs differents, et des fleches UML standardisees.
+
+**INSTRUCTIONS DE TRACE DES RELATIONS (UML standard) :**
+
+- **Association simple (──▶)** : trait continu avec une pointe de fleche OUVRANTE vers la classe cible. Multiplicite aux DEUX extremites : 1, 0..1, *, 1..*.
+- **Aggregation (──◇)** : losange vide du cote du conteneur. Ex: Un Groupe contient des membres.
+- **Composition (──◆)** : losange plein du cote du contenant. Ex: Une Facture contient des Lignes.
+- **Dependance (- - -▶)** : trait pointille avec fleche ouvrante. Ex: Une classe utilise une autre comme parametre.
+- **Heritage (──▷)** : trait continu avec triangle vide vers la classe parente.
+- Chaque extremite de fleche doit porter sa multiplicite (1, *, 0..1) lisiblement.
+- Les fleches ne doivent pas se croiser.
+
+**GROUPEMENT VISUEL POUR FORTE COHESION / FAIBLE COUPLAGE :**
+
+4 groupes separes par des rectangles en pointilles (large trait gris #9E9E9E) :
+
+┌─────────────────────────────────────────────────────┐
+│ GROUPE A : GESTION DES COMPTES (fond bleu clair #E3F2FD) │
+│ Cohesion elevee : toutes les classes concernent le compte │
+│ Couplage faible : depend seulement du Groupe B via FK     │
+├─────────────────────────────────────────────────────┤
+│ User ─── Notification (si besoin d historique user)  │
+│ PasswordResetToken (depend de User)                   │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│ GROUPE B : GESTION DES SIGNALEMENTS (fond rouge clair #FFEBEE) │
+│ Cohesion elevee : Signal + Category + Priority traitent ensemble │
+│ Couplage faible : depend de User (createur), Sector (assignation) │
+├─────────────────────────────────────────────────────────┤
+│ Signal ─── Category ─── Priority                         │
+└─────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────┐
+│ GROUPE C : GESTION DES STRUCTURES (fond vert clair #E8F5E9) │
+│ Cohesion elevee : Sector regroupe les agents municipaux   │
+│ Couplage faible : pas de dependance vers les autres groupes│
+├──────────────────────────────────────────────────────┤
+│ Sector (seul, autonome)                                │
+└──────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│ GROUPE D : TRAÇABILITE & RAPPORTS (fond gris clair #F5F5F5) │
+│ Cohesion elevee : Notification + Report + AuditLog tracent │
+│ Couplage faible : Notification et Report pointent vers Signal│
+├──────────────────────────────────────────────────────────┤
+│ Notification ─── Report ─── AuditLog                     │
+└──────────────────────────────────────────────────────────┘
+
+**Disposition spatiale sur le plan :**
+
+```
+   (haut de page)
+┌─ GROUPE A ────┐    ┌─ GROUPE C ────┐
+│    User        │    │   Sector      │
+│    ↑           │    │               │
+│ PasswordReset  │    └───────────────┘
+└───┬────────────┘         │
+    │ (createur)           │ (sector_id)
+    ▼                      ▼
+┌─ GROUPE B ──────────────────────────┐
+│  Signal ──▶ Category   Signal ──▶ Priority │
+└─────────────────────────────────────┘
+    │
+    ▼
+┌─ GROUPE D ──────────────────────────┐
+│ Notification   Report   AuditLog    │
+└─────────────────────────────────────┘
+   (bas de page)
+```
+
+**Classe « User »** (dans Groupe A, boite bleu #1565C0, texte blanc, coin arrondi 6px) :
+┌──────────────────────────────────┐
+│ «Entity» User                    │
+├──────────────────────────────────┤
+│ - id : Integer (PK)             │
+│ - email : String (unique, index)│
+│ - username : String (unique)    │
+│ - hashed_password : String      │
+│ - first_name / last_name : Str  │
+│ - phone_number : String ?       │
+│ - role : UserRole [CITIZEN|     │
+│     ADMIN|SECTOR]               │
+│ - status : UserStatus [ACTIVE|  │
+│     INACTIVE|SUSPENDED|...]     │
+│ - sector_id : Integer FK ?      │
+│ - is_email_verified : Boolean   │
+│ - created_at/updated_at/...     │
+├──────────────────────────────────┤
+│ + can_create_signals() : bool   │
+│ + can_process_signals() : bool  │
+│ + can_view_analytics() : bool   │
+└──────────────────────────────────┘
+
+Taille : ~180×140 px. Positionne en haut a gauche du plan.
+
+Fleches sortantes :
+  - User ──1──▶M── Signal  (role: created_by)       [association, pointe vers Signal]
+  - User ──1──▶M── Signal  (role: processed_by)     [association]
+  - User ──1──▶M── Notification                     [association]
+  - User ──1──▶M── AuditLog                          [association]
+  - User ──*──▶1── Sector  (via sector_id)          [association, fleche vers Sector]
+
+**Classe « Signal »** (dans Groupe B, boite rouge #C62828, texte blanc) :
+┌────────────────────────────────────┐
+│ «Entity» Signal                    │
+├────────────────────────────────────┤
+│ - id : Integer (PK)               │
+│ - reference_number : String (uniq)│
+│ - title : String(200)             │
+│ - description : Text              │
+│ - latitude / longitude : Float    │
+│ - address / city : String         │
+│ - status : SignalStatus [DRAFT|   │
+│   SUBMITTED|...|RESOLVED|CLOSED]  │
+│ - source : SignalSource           │
+│ - images/videos/docs : JSON ?     │
+│ - ai_confidence : Float           │
+│ - ai_priority_score : Float       │
+│ - estimated_damage_cost : Float   │
+│ - citizen_satisfaction : Int (1-5)│
+│ - created_at / resolved_at : DT   │
+├────────────────────────────────────┤
+│ + assign_to_sector() : void       │
+│ + update_status(new) : void       │
+└────────────────────────────────────┘
+
+Fleches entrantes : depuis User (created_by, processed_by)
+Fleches sortantes :
+  - Signal ──M──▶1── Category   [association]
+  - Signal ──M──▶1── Priority   [association]
+  - Signal ──1──▶M── Notification  [association]
+  - Signal ──1──▶M── Report       [association]
+
+**Classe « Category »** (Groupe B, orange #E65100, texte blanc) :
+┌──────────────────────────────────┐
+│ «Entity» Category                │
+├──────────────────────────────────┤
+│ - id : Integer (PK)             │
+│ - name : String(100)            │
+│ - code : String(50) (unique)    │
+│ - parent_id : Integer FK ?      │
+│ - level / sort_order : Integer  │
+│ - category_type : CategoryType  │
+│   [INFRASTRUCTURE|ENVIRONMENT|  │
+│    SAFETY|SERVICES|ADMIN]       │
+│ - icon / color : String         │
+│ - ai_keywords : JSON            │
+└──────────────────────────────────┘
+Fleches : Category ──1──▶M── Signal  ET  Category ──1──▶0..1── Category (auto-ref parent)
+
+**Classe « Priority »** (Groupe B, violet #6A1B9A, texte blanc) :
+┌───────────────────────────────────────┐
+│ «Entity» Priority                      │
+├───────────────────────────────────────┤
+│ - id : Integer (PK)                   │
+│ - name / code : String                │
+│ - priority_level : PriorityLevel      │
+│   [CRITICAL=1|HIGH=2|MEDIUM=3|LOW=4] │
+│ - max_response_time_min : Integer     │
+│ - max_resolution_time_hours : Integer │
+│ - escalation_time_hours : Integer     │
+│ - color / icon : String               │
+│ - ai_weight : Integer                 │
+└───────────────────────────────────────┘
+Fleche : Priority ──1──▶M── Signal
+
+**Classe « Sector »** (Groupe C, teal #00695C, texte blanc) :
+┌──────────────────────────────────┐
+│ «Entity» Sector                  │
+├──────────────────────────────────┤
+│ - id : Integer (PK)             │
+│ - name / code : String (unique) │
+│ - sector_type : SectorType      │
+│   [WATER|ROADS|WASTE|LIGHTING|  │
+│    GREEN_SPACES|...]            │
+│ - email / phone : String        │
+│ - manager_name : String         │
+│ - working_hours : JSON          │
+└──────────────────────────────────┘
+Fleche entrante:  User ──*──▶1── Sector
+
+**Classe « Notification »** (Groupe D, ambre #F57F17, texte noir) :
+┌────────────────────────────────────┐
+│ «Entity» Notification               │
+├────────────────────────────────────┤
+│ - id : Integer (PK)                │
+│ - notification_code : String (uniq)│
+│ - title / message : String/Text    │
+│ - channel : NotificationChannel    │
+│   [EMAIL|SMS|WHATSAPP|PUSH|IN_APP]│
+│ - status : NotificationStatus      │
+│   [PENDING|SENT|DELIVERED|FAILED]  │
+│ - retry_count / max_retries : Int  │
+│ - sent_at/delivered_at/failed_at   │
+│ - template_name/variables : JSON   │
+│ - FK user_id ? / FK signal_id ?    │
+└────────────────────────────────────┘
+Fleches entrantes: depuis User, depuis Signal
+
+**Classe « Report »** (Groupe D, marron #4E342E, texte blanc) :
+┌──────────────────────────────────┐
+│ «Entity» Report                  │
+├──────────────────────────────────┤
+│ - id : Integer (PK)             │
+│ - report_code : String (unique) │
+│ - title / description           │
+│ - report_type : ReportType      │
+│ - statistics / analytics : JSON │
+│ - FK signal_id ?                │
+│ - FK generated_by ?             │
+└──────────────────────────────────┘
+Fleche: Report ──M──▶1── User (generated_by)
+
+**Classe « AuditLog »** (Groupe D, ardoise #37474F, texte blanc) :
+┌────────────────────────────────────┐
+│ «Entity» AuditLog                  │
+├────────────────────────────────────┤
+│ - id : Integer (PK)               │
+│ - action : String(100)            │
+│ - entity_type / entity_id         │
+│ - old_values / new_values : JSON  │
+│ - severity : String               │
+│ - ip_address / user_agent : Str   │
+│ - FK user_id ?                    │
+│ - created_at : DateTime (index)   │
+└────────────────────────────────────┘
+Fleche: AuditLog ──M──▶1── User
+
+**LEGENDE DES FLECHES (encadre en bas a droite) :**
+  ──▶ Association simple (avec multiplicite aux 2 extremites)
+  ──◇ Aggregation (partie-tout, vie independante)
+  ──◆ Composition (partie-tout, vie liee)
+  - -▶ Dependance (utilisation temporaire)
+  ──▷ Heritage / Generalisation
+
+**INDICATIONS DE COHESION / COUPLAGE (note en bas a gauche) :**
+  "Les 4 groupes (A, B, C, D) presentent une forte cohesion interne : chaque groupe traite d'un seul domaine metier. Le couplage entre groupes est faible : les seules dependances inter-groupes sont des associations simples via cle etrangere (FK). Aucune classe d'un groupe n'appelle une methode d'une classe d'un autre groupe. Cette architecture respecte le principe de haute cohesion et faible couplage recommande en genie logiciel."
+
+En haut : titre "Diagramme de Classes — Urbain Sustainability System PFE 2026". Palette professionnelle, ombres portees legeres, texte en Times New Roman 9pt dans les boites.

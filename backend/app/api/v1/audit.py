@@ -10,7 +10,7 @@ from app.core.exceptions import DatabaseError
 router = APIRouter()
 
 
-@router.get("/", response_model=dict, summary="List audit logs",
+@router.get("", response_model=dict, summary="List audit logs",
              description="Get paginated audit log entries with optional filters")
 async def list_audit_logs(
     page: int = Query(1, ge=1, description="Page number"),

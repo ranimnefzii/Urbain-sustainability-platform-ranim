@@ -11,6 +11,7 @@ from sqlalchemy.sql import func
 import enum
 
 from app.core.database import Base
+from app.models.mixins import SoftDeleteMixin
 
 
 class SignalStatus(enum.Enum):
@@ -45,7 +46,7 @@ class VerificationStatus(enum.Enum):
     NEEDS_INFO = "needs_info"          # Informations supplémentaires
 
 
-class Signal(Base):
+class Signal(Base, SoftDeleteMixin):
     """
     Modèle principal pour les signalements de problèmes urbains
     Contient toutes les informations nécessaires pour le traitement IA

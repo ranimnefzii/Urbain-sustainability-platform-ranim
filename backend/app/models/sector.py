@@ -96,7 +96,7 @@ class Sector(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     
     # Relations
-    users = relationship("User", backref="sector")
+    # users = relationship("User", backref="sector")  # disabled — sector_id has no FK constraint
     
     def __repr__(self):
         return f"<Sector(id={self.id}, name={self.name}, type={self.sector_type.value})>"

@@ -1,0 +1,68 @@
+# Figure 10 : Architecture du Système de Notification Multicanal
+**Diagramme d'architecture détaillé — 4 canaux, templates, retry, status tracking**
+
+Créer un diagramme d'architecture centré sur le NotificationService entouré de 4 canaux, une base de données en haut, et un panneau de retry à droite. Palette : bleu (service central), vert (email), orange (SMS), violet (WhatsApp), rouge (push).
+
+**Centre : NotificationService** (grand rectangle #1565C0, texte blanc, au milieu) :
+Sous-composants (5 boîtes internes) :
+1. « Template Engine (Jinja2) » — rend les templates avec variables substituées
+2. **Priority Router** — routage basé sur priorité (critical → immédiat, normal → queue)
+3. **Retry Manager** — gestion des tentatives avec backoff exponentiel
+4. **Rate Limiter** — limite de 10 messages/min par canal
+5. **Channel Dispatcher** — aiguille vers le bon canal selon channel: EMAIL/SMS/WHATSAPP/PUSH
+
+**Canal 1 — EMAIL** (boîte en haut à gauche, fond #E8F5E9, bordure #43A047) :
+- Fournisseurs : SMTP Gmail (smtp.gmail.com:587 STARTTLS)
+- Templates : 4 templates HTML Jinja2 :
+  - verification_email.html (lien confirmation)
+  - password_reset_email.html (lien réinitialisation)
+  - signal_notification.html (statut signalement avec carte)
+  - welcome_email.html (bienvenue nouveau compte)
+- Fallback : Console logging (si SMTP indisponible → log dans fichier)
+- Statut : ✅ Production (actif)
+
+**Canal 2 — SMS** (boîte en haut à droite, fond #FFF3E0, bordure #EF6C00) :
+- Providers : TextBelt API → Email-to-SMS Carrier Gateway (Gmail SMTP)
+- Passerelle : 30+ fournisseurs (ATT, T-Mobile, Verizon, Orange Tunisie, etc.)
+- Format : `phone@carrier-gateway.com` envoyé via SMTP
+- Fallback : Mock/console logging
+- Statut : ⚠️ Secondaire (email-gateway en test)
+
+**Canal 3 — WHATSAPP** (boîte en bas à gauche, fond #F3E5F5, bordure #7B1FA2) :
+- Library : pywhatkit (WhatsApp Web automation via Selenium)
+- Limitations : nécessite session WhatsApp Web active, pas de multi-envoi simultané
+- Files d'attente : 1 message à la fois
+- Fallback : Mock/console logging
+- Statut : 🧪 Expérimental
+
+**Canal 4 — PUSH** (boîte en bas à droite, fond #FFEBEE, bordure #D32F2F) :
+- Provider : Firebase Cloud Messaging (FCM)
+- Device Token : enregistré dans notification.recipient_device_token
+- Fallback : Mock/console logging
+- Statut : 🔌 Configuré (nécessite certification PWA/App mobile)
+
+**Base de données** (en bas, fond #ECEFF1) :
+- Table « notifications » — cœurs : create(), update_status(), update_delivery_logs()
+- Opérations : CREATE (INSERT PENDING) → UPDATE (SENT/DELIVERED/FAILED)
+
+**Mécanisme de Retry (panneau droit, fond #F5F5F5) :**
+- Algorithme : Exponential Backoff (base 3^n) :
+  - Tentative 1 : T+5 min
+  - Tentative 2 : T+15 min
+  - Tentative 3 : T+45 min (max)
+- Configuration : max_retries=3, retry_delay_minutes=5, delay_multiplier=3
+- Conditions de retry : status=FAILED && retry_count < max_retries && !is_expired
+
+**Cycle de Statut (flèche circulaire en bas) :**
+PENDING (🟡) → SENT (🔵) → DELIVERED (🟢) → READ (🟢✓)
+                  ↓ (échec)
+                 FAILED (🔴) → (retry?) → PENDING (🔄) → RE-SENT...
+CANCELLED (⚪) depuis PENDING
+
+**Templates (liste en haut à gauche, petite) :**
+- 📄 verification_email.html : "Confirmez votre adresse email — cliquez ici"
+- 📄 password_reset_email.html : "Réinitialisation de mot de passe — lien 24h"
+- 📄 signal_notification.html : "Mise à jour signalement #{ref} — nouveau statut"
+- 📄 welcome_email.html : "Bienvenue {username}, commencez à signaler"
+
+**Pied de page :** "Architecture de notification multicanal avec retry automatique et fallback gracieux — PFE Urbain Sustainability 2026"

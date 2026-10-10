@@ -86,8 +86,46 @@ class Report(Base):
     total_signals_analyzed = Column(Integer, default=0, nullable=False)
     critical_signals_count = Column(Integer, default=0, nullable=False)
     high_priority_count = Column(Integer, default=0, nullable=False)
-    avg_resolution_time_hours = Column(Integer, default=0, nullable=False)
-    
+    avg_resolution_time_hours = Column(Float, default=0, nullable=False)
+
+    # Paramètres IA et période d'analyse
+    start_date = Column(DateTime(timezone=True), nullable=True)
+    end_date = Column(DateTime(timezone=True), nullable=True)
+    analysis_period_hours = Column(Integer, nullable=True)
+    ai_model_version = Column(String(50), nullable=True)
+    ai_confidence_score = Column(Float, nullable=True)
+    ai_processing_time_ms = Column(Integer, nullable=True)
+    ai_parameters = Column(JSON, nullable=True)
+
+    # Contenu analytique
+    summary = Column(Text, nullable=True)
+    key_findings = Column(JSON, nullable=True)
+    recommendations = Column(JSON, nullable=True)
+    insights = Column(JSON, nullable=True)
+    citizen_satisfaction_rate = Column(Float, nullable=True)
+    category_breakdown = Column(JSON, nullable=True)
+    priority_breakdown = Column(JSON, nullable=True)
+    sector_performance = Column(JSON, nullable=True)
+    geographic_hotspots = Column(JSON, nullable=True)
+    temporal_patterns = Column(JSON, nullable=True)
+    predicted_signals_next_period = Column(Integer, nullable=True)
+    trend_analysis = Column(JSON, nullable=True)
+    seasonal_patterns = Column(JSON, nullable=True)
+    anomaly_detection = Column(JSON, nullable=True)
+    system_performance = Column(JSON, nullable=True)
+    resource_utilization = Column(JSON, nullable=True)
+    bottleneck_identification = Column(JSON, nullable=True)
+    charts_data = Column(JSON, nullable=True)
+    map_visualization = Column(JSON, nullable=True)
+    dashboard_config = Column(JSON, nullable=True)
+    export_formats = Column(JSON, nullable=True)
+    sharing_settings = Column(JSON, nullable=True)
+    access_permissions = Column(JSON, nullable=True)
+    file_urls = Column(JSON, nullable=True)
+    thumbnail_url = Column(String(500), nullable=True)
+    tags = Column(JSON, nullable=True)
+    meta_data = Column("meta_data", JSON, nullable=True)
+
     # Paramètres de génération
     date_range_start = Column(DateTime(timezone=True), nullable=True)
     date_range_end = Column(DateTime(timezone=True), nullable=True)
@@ -122,7 +160,9 @@ class Report(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     generated_at = Column(DateTime(timezone=True), nullable=True)
-
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    last_accessed_at = Column(DateTime(timezone=True), nullable=True)
+    
     # Relations
     generator = relationship("User", foreign_keys=[generated_by])
     signal = relationship("Signal", back_populates="reports", foreign_keys=[signal_id])
@@ -200,8 +240,8 @@ class Report(Base):
     def mark_as_failed(self, error_message: str):
         """Marque le rapport comme échoué"""
         self.status = ReportStatus.FAILED
-        if not self.metadata:
-            self.metadata = {}
-        self.metadata["error_message"] = error_message
-        self.metadata["failed_at"] = datetime.now().isoformat()
+        if not self.report_metadata:
+            self.report_metadata = {}
+        self.report_metadata["error_message"] = error_message
+        self.report_metadata["failed_at"] = datetime.now().isoformat()
         self.updated_at = datetime.now()

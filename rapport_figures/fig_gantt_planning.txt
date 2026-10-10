@@ -1,0 +1,56 @@
+# Figure 11 : Diagramme de Gantt — Planning du Projet
+## Calendrier de realisation sur 4 mois (Mars a Juin 2026)
+
+Creer un diagramme de Gantt horizontal avec 6 barres de sprint, de Mars a Juin 2026. Barres arrondies, texte lisible, code couleur par domaine. Chaque barre est reliee a un jalon (losange).
+
+**Timeline horizontale (axe X, haut du diagramme) :**
+  Mois : Mars 2026 | Avril 2026 | Mai 2026 | Juin 2026
+  Semaines : S1 a S4 | S5 a S8 | S9 a S12 | S13 a S16
+
+**Barres verticales (axe Y, de haut en bas) :**
+
+┌──────────────────────────────────────────────────────────────────┐
+│ Sprint 0 : Mise en place       [████████]  S1 - S2   Mars       │
+│  - Installation et configuration du projet                       │
+│  - Creation de la base de donnees                                │
+│  - Module d'authentification                                     │
+│  ◆ Jalon : Environnement pret                                    │
+├──────────────────────────────────────────────────────────────────┤
+│ Sprint 1 : Signalements        [████████████]  S3 - S5   Mars   │
+│  - Creation des modeles (signalements, categories)               │
+│  - Formulaire de signalement avec carte                          │
+│  - Upload de photos                                              │
+│  ◆ Jalon : Signalements fonctionnels                             │
+├──────────────────────────────────────────────────────────────────┤
+│ Sprint 2 : Notifications       [████████████]  S6 - S8   Avril  │
+│  - Gestion des utilisateurs et profils                           │
+│  - Notifications par email                                       │
+│  - Notifications par SMS                                         │
+│  ◆ Jalon : Notifications operationnelles                         │
+├──────────────────────────────────────────────────────────────────┤
+│ Sprint 3 : Intelligence Art.   [████████]  S9 - S10   Mai       │
+│  - Classification automatique des signalements                   │
+│  - Calcul de la priorite                                         │
+│  ◆ Jalon : Classification IA operationnelle                      │
+├──────────────────────────────────────────────────────────────────┤
+│ Sprint 4 : Tableau de bord     [████████]  S11 - S12   Mai      │
+│  - Indicateurs de performance (KPIs)                             │
+│  - Graphiques et visualisations                                  │
+│  ◆ Jalon : Tableau de bord livre                                 │
+├──────────────────────────────────────────────────────────────────┤
+│ Sprint 5 : Finalisation        [████████████████]  S13 - S16 Juin│
+│  - Interface d'administration                                    │
+│  - Tests de validation                                           │
+│  - Documentation utilisateur                                     │
+│  ◆ Jalon : Livraison finale                                      │
+└──────────────────────────────────────────────────────────────────┘
+
+**Couleurs des barres (de haut en bas) :**
+  Sprint 0 : Bleu (#1565C0) — Mise en place
+  Sprint 1 : Vert (#2E7D32) — Signalements
+  Sprint 2 : Orange (#F57F17) — Notifications
+  Sprint 3 : Violet (#7B1FA2) — Intelligence Artificielle
+  Sprint 4 : Teal (#004D40) — Tableau de bord
+  Sprint 5 : Rouge fonce (#BF360C) — Finalisation
+
+**Pied de page :** "Planning du projet Urbain Sustainability System — PFE 2026. Realise sur 4 mois (Mars a Juin) en 6 sprints selon une methode Agile adaptee."

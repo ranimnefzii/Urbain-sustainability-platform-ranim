@@ -31,7 +31,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/",
+    "",
     response_model=dict,
     status_code=status.HTTP_201_CREATED,
     summary="Create report",
@@ -85,7 +85,7 @@ def _serialize_report(report) -> Dict[str, Any]:
 
 
 @router.get(
-    "/",
+    "",
     response_model=dict,
     summary="List reports",
     description="Get paginated list of reports with optional filters"

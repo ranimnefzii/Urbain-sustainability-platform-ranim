@@ -1,0 +1,58 @@
+# Figure 1 : Architecture Globale du Systeme
+## Schema en couches montrant comment les donnees circulent de l'utilisateur a la base
+
+Creer un schema d'architecture en 4 couches verticales empilees, avec des icones et du texte court. Palette bleue degrade. Chaque couche est un rectangle horizontal avec une fleche descendante et montante sur le cote gauche.
+
+**Disposition generale : 4 couches, de haut en bas**
+
+```
+┌─────────────────────────────────────────────────────┐
+│  1. INTERFACE UTILISATEUR (Frontend)                │
+│  [icone ecran]  Application web accessible depuis   │
+│  le navigateur (PC, smartphone, tablette)            │
+├─────────────────────────────────────────────────────┤
+│  ▲────────────────── HTTP (requetes) ──────────────────▶ │
+│  ◀─────────────────── JSON (reponses) ────────────────── │
+├─────────────────────────────────────────────────────┤
+│  2. API ET LOGIQUE METIER (Backend)                 │
+│  [icone engrenage]  Traite les requetes, execute    │
+│  les regles de gestion, orchestre les traitements   │
+│  Modules : Signalements, Utilisateurs, Notifications│
+│            Intelligence Artificielle, Analytics      │
+├─────────────────────────────────────────────────────┤
+│  ▲────────────────── Appels internes ─────────────────▶ │
+├─────────────────────────────────────────────────────┤
+│  3. INTELLIGENCE ARTIFICIELLE                       │
+│  [icone IA/robot]  Pipeline automatique integre     │
+│  a la creation de chaque signalement :               │
+│  → Classification (categorie du probleme)            │
+│  → Priorisation (score d'urgence)                    │
+│  → Detection d'anomalies (cas inhabituels)           │
+│  → Prediction de tendances (volumes futurs)          │
+├─────────────────────────────────────────────────────┤
+│  ▲────────────────── Acces aux donnees ────────────────▶ │
+├─────────────────────────────────────────────────────┤
+│  4. BASE DE DONNEES                                 │
+│  [icone cylindre]  Stockage et organisation des     │
+│  donnees du systeme                                 │
+│  Tables : Utilisateurs, Signalements, Categories,   │
+│           Priorites, Secteurs, Notifications,        │
+│           Rapports, Historique                       │
+└─────────────────────────────────────────────────────┘
+```
+
+**Fleches laterales (cote gauche de l'empilement) :**
+  - Fleche descendante (bleu): "Requete utilisateur"
+  - Fleche montante (vert): "Reponse / notification"
+
+**Legende (en bas a droite) :**
+  ──▶ Flux de requete (utilisateur → systeme)
+  ◀── Flux de reponse (systeme → utilisateur)
+
+**Ce qui est volontairement simplifie (pas montre) :**
+  - Pas de noms de technologies specifiques (React, FastAPI, PostgreSQL)
+  - Pas de fichiers de code ou de classes
+  - Pas de versions de logiciels
+  - Pas de details d'implementation (cache, files d'attente)
+
+**Pied de page :** "Architecture globale en couches — Urbain Sustainability System PFE 2026. Les donnees circulent de l'interface utilisateur vers la base de donnees en passant par l'API et l'IA."

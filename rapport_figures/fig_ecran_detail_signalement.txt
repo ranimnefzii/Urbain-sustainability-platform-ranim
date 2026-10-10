@@ -1,0 +1,25 @@
+# Figure 18 : Detail d'un Signalement avec Analyse IA
+## Capture d'ecran de la page de detail integrant l'intelligence artificielle
+
+Creer une capture d'ecran de la page de detail d'un signalement avec l'analyse IA visible.
+
+**En-tete :**
+- Titre du signalement, badge de statut (vert si resolu), reference, date de creation
+- Boutons "Modifier" et "Supprimer"
+
+**Contenu principal (2 colonnes) :**
+Colonne gauche (plus large) :
+- Section "Description" avec texte du probleme
+- Section "Localisation" : latitude, longitude, adresse
+- Section "Analyse IA" avec titres :
+  - 4 indicateurs arrondis : Confiance (%), Priorite (score), Severite (%), Urgence (%)
+  - Boutons d'action IA : Classifier, Evaluer priorite, Detecter anomalies, Analyser severite, Rapport IA
+  - Resultat visible d'une classification avec barres de confiance par categorie
+
+Colonne droite :
+- Panneau Workflow (actions disponibles par statut)
+- Carte "Details" : statut, source, visibilite, categorie, priorite, createur
+
+**Style :** Design professionnel, cartes blanches arrondies sur fond gris. Couleurs : bleu brand, violet pour IA.
+
+**Pied :** "Detail d'un signalement avec IA — Urbain Sustainability System PFE 2026"

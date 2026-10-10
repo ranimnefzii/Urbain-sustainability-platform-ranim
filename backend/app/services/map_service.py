@@ -339,6 +339,8 @@ class MapService(BaseService):
             for signal in signals:
                 distance = calculate_distance(latitude, longitude, signal.latitude, signal.longitude)
                 if distance <= radius_km:
+                    img = signal.images
+                    first_image = img[0] if isinstance(img, list) and len(img) > 0 else (img if isinstance(img, str) else None)
                     nearby.append({
                         "id": signal.id,
                         "reference_number": signal.reference_number,
@@ -349,7 +351,8 @@ class MapService(BaseService):
                         "distance_km": round(distance, 2),
                         "category_id": signal.category_id,
                         "priority_id": signal.priority_id,
-                        "created_at": signal.created_at.isoformat() if signal.created_at else None
+                        "created_at": signal.created_at.isoformat() if signal.created_at else None,
+                        "images": signal.images or None
                     })
 
             nearby.sort(key=lambda x: x["distance_km"])
@@ -465,8 +468,8 @@ class MapService(BaseService):
             validate_coordinates_range(bounds["lat_min"], bounds["lng_min"])
             validate_coordinates_range(bounds["lat_max"], bounds["lng_max"])
 
-            from datetime import datetime, timedelta
-            start_date = datetime.now() - timedelta(days=days)
+            from datetime import datetime, timedelta, timezone
+            start_date = datetime.now(timezone.utc) - timedelta(days=days)
 
             signals = await self.signal_repo.get_by_location_bounds(
                 lat_min=bounds["lat_min"],
@@ -537,7 +540,7 @@ class MapService(BaseService):
     async def get_cluster_data(
         self,
         bounds: Dict[str, float],
-        zoom_level: int = 12,
+        zoom_level: float = 12.0,
         cluster_radius: int = 50
     ) -> Dict[str, Any]:
         try:

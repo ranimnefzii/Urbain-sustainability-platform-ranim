@@ -1,4 +1,3 @@
-# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -8,29 +7,24 @@ build/
 *.log
 .env
 *.db
-venv/
-.venv/
-.pytest_cache/
-.mypy_cache/
-*.so
-
-# Node / Frontend
-node_modules/
-frontend/dist/
-frontend/build/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-
-# Application
 uploads/
 logs/
 
-# Environment
-backend/.env
+# Runtime artifacts
+.server_pid
+.frontend_pid
+*.pid
+
+# Server / job logs
+uvicorn_*.txt
+backend/uvicorn_*.txt
+backend/job_*.txt
+
+# Word temp / lock files
+~$*
+
+# Debug helper scripts
+backend/_seed_rich_data.py
+backend/check_user_debug.py
+backend/debug_login_direct.py
+backend/debug_pw.py

@@ -461,6 +461,7 @@ export interface MapNearbySignal {
   category_id?: number;
   priority_id?: number;
   created_at?: string;
+  images?: string[] | null;
 }
 
 export interface MapCombinedData {

@@ -23,7 +23,7 @@ from app.repositories.sector_repository import SectorRepository
 from app.repositories.report_repository import ReportRepository
 from app.repositories.notification_repository import NotificationRepository
 from app.models.signal import Signal, SignalStatus
-from app.models.user import User, UserRole
+from app.models.user import User, UserRole, UserStatus
 from app.models.category import Category, CategoryType
 from app.models.priority import Priority, PriorityLevel
 from app.models.sector import Sector, SectorType
@@ -157,6 +157,108 @@ class AnalyticsService(BaseService):
             for row in day_result:
                 signals_by_day[str(row.day)] = row.count
 
+            # ------- Flat fields expected by the admin dashboard UI -------
+            active_users_result = await self.db.execute(
+                select(func.count(User.id)).where(User.status == UserStatus.ACTIVE)
+            )
+            active_users = active_users_result.scalar() or 0
+
+            terminal_statuses = [SignalStatus.RESOLVED, SignalStatus.CLOSED]
+            resolved_all_result = await self.db.execute(
+                select(func.count(Signal.id)).where(Signal.status.in_(terminal_statuses))
+            )
+            resolved_signals = resolved_all_result.scalar() or 0
+
+            open_all_result = await self.db.execute(
+                select(func.count(Signal.id)).where(
+                    Signal.status.notin_(terminal_statuses + [
+                        SignalStatus.CANCELLED, SignalStatus.REJECTED, SignalStatus.DRAFT
+                    ])
+                )
+            )
+            open_signals = open_all_result.scalar() or 0
+
+            avg_all_result = await self.db.execute(
+                select(func.avg(
+                    func.extract("epoch", Signal.resolved_at) -
+                    func.extract("epoch", Signal.created_at)
+                )).where(Signal.resolved_at.isnot(None))
+            )
+            avg_all_seconds = avg_all_result.scalar()
+            avg_resolution_all = round(float(avg_all_seconds) / 3600, 2) if avg_all_seconds else 0
+
+            sat_all_result = await self.db.execute(
+                select(func.avg(Signal.citizen_satisfaction)).where(Signal.citizen_satisfaction.isnot(None))
+            )
+            sat_all_value = sat_all_result.scalar()
+            citizen_satisfaction_all = round(float(sat_all_value), 2) if sat_all_value else 0
+
+            signals_by_status: Dict[str, int] = {}
+            status_all_result = await self.db.execute(
+                select(Signal.status, func.count(Signal.id)).group_by(Signal.status)
+            )
+            for row in status_all_result:
+                signals_by_status[row[0].name] = row[1]
+
+            signals_by_category: Dict[str, int] = {}
+            top_categories: List[Dict[str, Any]] = []
+            category_all_result = await self.db.execute(
+                select(Category.id, Category.name, func.count(Signal.id).label("count"))
+                .join(Category, Category.id == Signal.category_id)
+                .group_by(Category.id, Category.name)
+                .order_by(func.count(Signal.id).desc())
+            )
+            for row in category_all_result:
+                signals_by_category[row.name] = row.count
+                top_categories.append({"id": row.id, "name": row.name, "count": row.count})
+
+            signals_by_priority: Dict[str, int] = {}
+            priority_all_result = await self.db.execute(
+                select(Priority.priority_level, func.count(Signal.id))
+                .join(Priority, Priority.id == Signal.priority_id)
+                .group_by(Priority.priority_level)
+            )
+            for row in priority_all_result:
+                signals_by_priority[row[0].name] = row[1]
+
+            sector_performance: List[Dict[str, Any]] = []
+            sector_perf_result = await self.db.execute(
+                select(
+                    Sector.id,
+                    Sector.name,
+                    func.count(Signal.id).label("total"),
+                    func.sum(case((Signal.status == SignalStatus.RESOLVED, 1), else_=0)).label("resolved"),
+                    func.avg(
+                        func.extract("epoch", Signal.resolved_at) -
+                        func.extract("epoch", Signal.created_at)
+                    ).label("avg_time")
+                )
+                .select_from(Sector)
+                .outerjoin(Signal, Signal.assigned_sector_id == Sector.id)
+                .group_by(Sector.id, Sector.name)
+            )
+            for row in sector_perf_result:
+                sector_performance.append({
+                    "sector_id": row.id,
+                    "sector_name": row.name,
+                    "resolved": int(row.resolved or 0),
+                    "avg_time": round(float(row.avg_time) / 3600, 2) if row.avg_time else 0
+                })
+
+            recent_signals: List[Dict[str, Any]] = []
+            recent_result = await self.db.execute(
+                select(Signal).order_by(Signal.created_at.desc()).limit(6)
+            )
+            for s in recent_result.scalars().all():
+                recent_signals.append({
+                    "id": s.id,
+                    "title": s.title,
+                    "reference_number": s.reference_number,
+                    "status": s.status.name,
+                    "category_id": s.category_id,
+                    "created_at": s.created_at.isoformat() if s.created_at else None
+                })
+
             stats = {
                 "overview": {
                     "total_signals": total_signals,
@@ -177,7 +279,24 @@ class AnalyticsService(BaseService):
                 "daily_trend": signals_by_day,
                 "filters_applied": {
                     "sector_id": sector_id
-                }
+                },
+                # Flat dashboard fields
+                "total_signals": total_signals,
+                "total_users": total_users,
+                "total_categories": total_categories,
+                "total_sectors": total_sectors,
+                "active_users": active_users,
+                "resolved_signals": resolved_signals,
+                "open_signals": open_signals,
+                "avg_resolution_time_hours": avg_resolution_all,
+                "citizen_satisfaction_rate": citizen_satisfaction_all,
+                "signals_by_status": signals_by_status,
+                "signals_by_category": signals_by_category,
+                "signals_by_priority": signals_by_priority,
+                "sector_performance": sector_performance,
+                "top_categories": top_categories,
+                "recent_signals": recent_signals,
+                "recent_activity": []
             }
 
             if sector_id:

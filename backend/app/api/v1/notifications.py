@@ -25,7 +25,7 @@ def _serialize_notification(n):
     return {c.name: getattr(n, c.name) for c in n.__table__.columns}
 
 
-@router.get("/", response_model=dict, summary="List user notifications",
+@router.get("", response_model=dict, summary="List user notifications",
              description="Get paginated notifications for the current user")
 async def list_notifications(
     page: int = Query(1, ge=1, description="Page number"),

@@ -47,6 +47,7 @@ class SignalBase(BaseModel):
 
 class SignalCreate(SignalBase):
     """Schéma pour la création de signalement"""
+    status: Optional[str] = Field(None, description="Statut initial (DRAFT ou SUBMITTED)")
     images: Optional[List[str]] = Field(None, max_items=10, description="URLs des images")
     videos: Optional[List[str]] = Field(None, max_items=5, description="URLs des vidéos")
     documents: Optional[List[str]] = Field(None, max_items=5, description="URLs des documents")

@@ -1,0 +1,19 @@
+# Figure 16 : Page d'Inscription
+## Capture d'ecran du formulaire de creation de compte
+
+Creer une capture d'ecran de la page d'inscription.
+
+**Design :** Meme style split screen que la page de connexion. Gauche : degrade bleu, texte "Rejoignez la Plateforme Citoyenne" et "Creez votre compte pour signaler les problemes urbains". Droite : formulaire centre, fond blanc.
+
+**Formulaire :**
+- 2 champs cote a cote : Prenom et Nom
+- Champ Email
+- Champ Telephone (optionnel)
+- Champ Mot de passe
+- Champ Confirmation mot de passe
+- Bouton "Creer mon compte" bleu pleine largeur
+- Lien "Se connecter" en bas
+
+**Etat :** Vue initiale, champs vides.
+
+**Pied :** "Page d'inscription — Urbain Sustainability System PFE 2026"

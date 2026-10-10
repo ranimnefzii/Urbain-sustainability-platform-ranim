@@ -51,7 +51,7 @@ def _serialize_signal_basic(signal) -> Dict[str, Any]:
 
 
 @router.get(
-    "/",
+    "",
     response_model=dict,
     summary="List users",
     description="Get paginated list of all users (admin only)"

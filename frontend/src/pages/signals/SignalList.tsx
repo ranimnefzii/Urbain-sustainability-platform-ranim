@@ -9,12 +9,12 @@ import type { Signal, Priority, Sector } from "../../types";
 
 const STATUS_OPTIONS = ["", "SUBMITTED", "PENDING", "UNDER_REVIEW", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "CLOSED", "CANCELLED", "REJECTED", "DRAFT"];
 const SORT_OPTIONS = [
-  { value: "", label: "Newest First" },
-  { value: "created_at:asc", label: "Oldest First" },
-  { value: "priority_level:desc", label: "Highest Priority" },
-  { value: "priority_level:asc", label: "Lowest Priority" },
-  { value: "title:asc", label: "Title A-Z" },
-  { value: "title:desc", label: "Title Z-A" },
+  { value: "", label: "Plus récents" },
+  { value: "created_at:asc", label: "Plus anciens" },
+  { value: "priority_level:desc", label: "Priorité + élevée" },
+  { value: "priority_level:asc", label: "Priorité - élevée" },
+  { value: "title:asc", label: "Titre A-Z" },
+  { value: "title:desc", label: "Titre Z-A" },
 ];
 
 export default function SignalList() {
@@ -23,7 +23,6 @@ export default function SignalList() {
   const { categories: catList } = useCategories();
   const [priorityList, setPriorityList] = useState<Priority[]>([]);
   const [sectorList, setSectorList] = useState<Sector[]>([]);
-
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [filters, setFilters] = useState({
@@ -44,7 +43,7 @@ export default function SignalList() {
     sectors.list().then((res) => setSectorList(res.data.data ?? [])).catch(() => {});
   }, []);
 
-  const { items, page, pages, total, loading } = useSignalList({
+  const { items, page, pages, total, loading, error } = useSignalList({
     ...filters,
     status: filters.status || undefined,
     category_id: filters.category_id ? Number(filters.category_id) : undefined,
@@ -71,109 +70,148 @@ export default function SignalList() {
 
   const hasActiveFilters = filters.status || filters.category_id || filters.priority_id || filters.sector_id || filters.search || filters.start_date || filters.end_date || filters.sort_by;
 
+  const getPriorityStyle = (p: Priority | undefined) => {
+    if (!p) return "bg-surface-100 text-surface-500";
+    if (p.priority_level >= 4) return "bg-red-100 text-red-700 border-red-200";
+    if (p.priority_level >= 3) return "bg-amber-100 text-amber-700 border-amber-200";
+    return "bg-green-100 text-green-700 border-green-200";
+  };
+
   const columns: Column<Signal>[] = [
-    { key: "reference_number", header: "Ref #", render: (s) => <span className="font-mono text-xs text-gray-500">{s.reference_number}</span> },
-    { key: "title", header: "Title", render: (s) => <span className="font-medium text-gray-900">{s.title}</span> },
-    { key: "category", header: "Category", render: (s) => s.category?.name || "-" },
-    { key: "status", header: "Status", render: (s) => <StatusBadge status={s.status} /> },
-    { key: "priority", header: "Priority", render: (s) => s.priority ? <span className={`text-xs font-medium px-2 py-0.5 rounded ${s.priority.priority_level >= 4 ? "bg-red-100 text-red-800" : s.priority.priority_level >= 3 ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"}`}>{s.priority.name}</span> : "-" },
-    { key: "created_at", header: "Created", render: (s) => new Date(s.created_at).toLocaleDateString() },
-    { key: "created_by_user", header: "Reporter", render: (s) => s.created_by_user ? `${s.created_by_user.first_name} ${s.created_by_user.last_name}` : "Anonymous" },
+    { key: "reference_number", header: "Réf", render: (s) => <span className="font-mono text-xs text-surface-400 bg-surface-50 px-2 py-0.5 rounded">{s.reference_number}</span> },
+    { key: "title", header: "Titre", render: (s) => <span className="font-semibold text-surface-800">{s.title}</span> },
+    { key: "category", header: "Catégorie", render: (s) => s.category ? <span className="badge bg-brand-50 text-brand-700">{s.category.name}</span> : <span className="text-surface-400">-</span> },
+    { key: "status", header: "Statut", render: (s) => <StatusBadge status={s.status} /> },
+    { key: "priority", header: "Priorité", render: (s) => <span className={`badge border ${getPriorityStyle(s.priority)}`}>{s.priority?.name || "-"}</span> },
+    { key: "created_at", header: "Date", render: (s) => <span className="text-sm text-surface-500">{new Date(s.created_at).toLocaleDateString("fr-FR")}</span> },
+    { key: "created_by_user", header: "Signalé par", render: (s) => <span className="text-sm text-surface-600">{s.created_by_user ? `${s.created_by_user.first_name} ${s.created_by_user.last_name}` : "Anonyme"}</span> },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Signals</h1>
-        <div className="flex gap-2">
-          <button onClick={() => setShowAdvanced(!showAdvanced)} className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
-            {showAdvanced ? "Simple" : "Advanced"} Filters
+    <div className="space-y-5 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="page-title">Signalements</h1>
+          <p className="text-sm text-surface-500 mt-1">Consultez et gérez l'ensemble des signalements</p>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={() => setShowAdvanced(!showAdvanced)}
+            className={`btn-secondary text-sm ${showAdvanced ? "bg-brand-50 border-brand-300 text-brand-700" : ""}`}>
+            <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filtres
           </button>
-          <button onClick={() => navigate("/signals/new")} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-            + New Signal
+          <button onClick={() => navigate("/signals/new")} className="btn-primary">
+            <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            Nouveau
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+          <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span className="text-sm">{error}</span>
+        </div>
+      )}
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
-        <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-xs font-medium text-gray-500 mb-1">Search</label>
-            <input type="text" value={filters.search} onChange={(e) => updateFilter("search", e.target.value)}
-              placeholder="Search by title, ref, description..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+      <div className="card">
+        <div className="card-body space-y-4">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="input-label">Recherche</label>
+              <div className="relative">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <input type="text" value={filters.search} onChange={(e) => updateFilter("search", e.target.value)}
+                  placeholder="Rechercher par titre, référence, description..." className="input-field pl-10" />
+              </div>
+            </div>
+            <div>
+              <label className="input-label">Statut</label>
+              <select value={filters.status} onChange={(e) => updateFilter("status", e.target.value)}
+                className="input-field min-w-[160px]">
+                <option value="">Tous les statuts</option>
+                {STATUS_OPTIONS.filter(Boolean).map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="input-label">Catégorie</label>
+              <select value={filters.category_id} onChange={(e) => updateFilter("category_id", e.target.value)}
+                className="input-field min-w-[180px]">
+                <option value="">Toutes les catégories</option>
+                {catList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="input-label">Trier par</label>
+              <select value={filters.sort_by} onChange={(e) => updateFilter("sort_by", e.target.value)}
+                className="input-field min-w-[160px]">
+                {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div className="flex items-end">
+              <button onClick={clearFilters} disabled={!hasActiveFilters}
+                className="btn-ghost text-surface-500 disabled:opacity-30">
+                Réinitialiser
+              </button>
+            </div>
           </div>
-          <div className="w-40">
-            <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
-            <select value={filters.status} onChange={(e) => updateFilter("status", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-              <option value="">All Statuses</option>
-              {STATUS_OPTIONS.filter(Boolean).map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
-            </select>
-          </div>
-          <div className="w-48">
-            <label className="block text-xs font-medium text-gray-500 mb-1">Category</label>
-            <select value={filters.category_id} onChange={(e) => updateFilter("category_id", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-              <option value="">All Categories</option>
-              {catList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-          <div className="w-40">
-            <label className="block text-xs font-medium text-gray-500 mb-1">Sort</label>
-            <select value={filters.sort_by} onChange={(e) => updateFilter("sort_by", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-              {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </div>
-          <div className="flex items-end">
-            <button onClick={clearFilters} disabled={!hasActiveFilters}
-              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg disabled:opacity-50">
-              Clear
-            </button>
-          </div>
-        </div>
 
-        {showAdvanced && (
-          <div className="flex flex-wrap gap-4 pt-2 border-t border-gray-100">
-            <div className="w-48">
-              <label className="block text-xs font-medium text-gray-500 mb-1">Priority</label>
-              <select value={filters.priority_id} onChange={(e) => updateFilter("priority_id", e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                <option value="">All Priorities</option>
-                {priorityList.filter((p) => p.is_active).map((p) => (
-                  <option key={p.id} value={p.id}>{p.name} (L{p.priority_level})</option>
-                ))}
-              </select>
+          {showAdvanced && (
+            <div className="flex flex-wrap gap-4 pt-4 border-t border-surface-100 animate-fade-in">
+              <div>
+                <label className="input-label">Priorité</label>
+                <select value={filters.priority_id} onChange={(e) => updateFilter("priority_id", e.target.value)}
+                  className="input-field min-w-[160px]">
+                  <option value="">Toutes les priorités</option>
+                  {priorityList.filter((p) => p.is_active).map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="input-label">Secteur</label>
+                <select value={filters.sector_id} onChange={(e) => updateFilter("sector_id", e.target.value)}
+                  className="input-field min-w-[180px]">
+                  <option value="">Tous les secteurs</option>
+                  {sectorList.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="input-label">Date début</label>
+                <input type="date" value={filters.start_date} onChange={(e) => updateFilter("start_date", e.target.value)}
+                  className="input-field" />
+              </div>
+              <div>
+                <label className="input-label">Date fin</label>
+                <input type="date" value={filters.end_date} onChange={(e) => updateFilter("end_date", e.target.value)}
+                  className="input-field" />
+              </div>
             </div>
-            <div className="w-48">
-              <label className="block text-xs font-medium text-gray-500 mb-1">Sector</label>
-              <select value={filters.sector_id} onChange={(e) => updateFilter("sector_id", e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                <option value="">All Sectors</option>
-                {sectorList.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Start Date</label>
-              <input type="date" value={filters.start_date} onChange={(e) => updateFilter("start_date", e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">End Date</label>
-              <input type="date" value={filters.end_date} onChange={(e) => updateFilter("end_date", e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
+      {/* Results count */}
+      {!loading && (
+        <p className="text-sm text-surface-400">
+          {total} signalement{total !== 1 ? "s" : ""} trouvé{total !== 1 ? "s" : ""}
+          {hasActiveFilters && (
+            <button onClick={clearFilters} className="ml-2 text-brand-600 hover:underline cursor-pointer">(effacer filtres)</button>
+          )}
+        </p>
+      )}
+
+      {/* Table */}
       <DataTable
         columns={columns}
         data={items}
         loading={loading}
-        emptyTitle="No signals found"
-        emptyDescription={filters.search ? "Try a different search term" : "Be the first to report a signal"}
+        emptyTitle="Aucun signalement trouvé"
+        emptyDescription={filters.search ? "Essayez un autre terme de recherche" : "Soyez le premier à signaler un problème"}
         onRowClick={(s) => navigate(`/signals/${s.id}`)}
         keyExtractor={(s) => s.id}
         pagination={{ page, pages, total, onPageChange: (p) => updateFilter("page", String(p)) }}

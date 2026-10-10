@@ -1,0 +1,60 @@
+# Figure 2 : Diagramme de Cas d'Utilisation General
+## Fonctionnalites principales du systeme pour chaque type d'utilisateur
+
+Creer un diagramme UML de cas d'utilisation avec 3 acteurs (stick figures) et 12 cas d'utilisation (ellipses) regroupes par theme. Pas de include/extend, juste des associations acteur → cas. Palette : vert (citoyen), orange (agent), bleu (admin).
+
+**Acteur 1 — Citoyen** (a gauche, stick figure, etiquette "Citoyen", #4CAF50) :
+   Cas relies par un trait :
+   - "Creer un compte"
+   - "Se connecter"
+   - "Signaler un probleme urbain"
+   - "Consulter la carte des signalements"
+   - "Suivre ses signalements"
+   - "Donner son avis"
+
+**Acteur 2 — Agent sectoriel** (en haut a droite, stick figure, etiquette "Agent sectoriel", #FF9800) :
+   Cas relies par un trait :
+   - "Consulter les signalements assignes"
+   - "Mettre a jour le statut"
+   - "Ajouter des notes et photos"
+   - "Cloturer un dossier"
+
+**Acteur 3 — Administrateur** (en bas a droite, stick figure, etiquette "Administrateur", #2196F3) :
+   Cas relies par un trait :
+   - "Gerer les utilisateurs"
+   - "Configurer les categories et priorites"
+   - "Gerer les secteurs municipaux"
+   - "Envoyer des notifications"
+   - "Consulter le tableau de bord"
+   - "Generer des rapports"
+
+**Rectangle systeme (grand cadre, trait plein) :**
+   ┌─────────────────────────────────────────────────────┐
+   │  Systeme Urbain Sustainability                      │
+   │  (tous les cas d'utilisation a l'interieur)         │
+   └─────────────────────────────────────────────────────┘
+
+**Disposition spatiale recommandee :**
+
+                    ┌───────────────────┐
+                    │    AGENT          │
+                    │  sectoriel        │
+                    └───┬───┬───┬───┬──┘
+                        │   │   │   │
+              ┌─────────┘   │   │   └──────────┐
+              │             │   │              │
+   ┌────┐   Consulter    Mettre  Ajouter    Cloturer
+   │    │   assignes      a jour  notes
+   │CITOYEN│              statut  et photos
+   │    │
+   └─┬──┘   ┌──────────────────────────────────────┐
+     │      │          ADMINISTRATEUR               │
+     │      └──┬──┬──┬──┬──┬──┬──┐                 │
+     │        │  │  │  │  │  │  │                  │
+     │     Gerer Config  Gerer  Envoyer  Tableau   Rapports
+     │     users  cat.   sect.  notif.   de bord
+     │
+   Creer Se     Signaler  Carte    Suivre   Avis
+   compte connecter       interac.  sign.
+
+**Pied de page :** "Diagramme de Cas d'Utilisation — Urbain Sustainability System PFE 2026. Le systeme offre 3 interfaces adaptees aux besoins de chaque profil d'utilisateur."

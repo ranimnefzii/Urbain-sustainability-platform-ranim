@@ -7,12 +7,14 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+import os
 import structlog
 from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.api.v1 import auth, users, signals, categories, reports, admin, priorities, sectors, notifications, analytics, map_module, ai
+from app.api.v1 import auth, users, signals, categories, reports, admin, priorities, sectors, notifications, analytics, map_module, ai_module
 from app.core.exceptions import UrbainException
 
 
@@ -192,11 +194,15 @@ app.include_router(
 )
 
 app.include_router(
-    ai.router,
+    ai_module.router,
     prefix="/api/v1/ai",
     tags=["AI"]
 )
 
+# Serve uploaded files (images, documents, thumbnails)
+_uploads_dir = os.path.abspath(settings.UPLOAD_DIR)
+os.makedirs(_uploads_dir, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=_uploads_dir), name="uploads")
 
 # Health check endpoint
 @app.get("/health")
