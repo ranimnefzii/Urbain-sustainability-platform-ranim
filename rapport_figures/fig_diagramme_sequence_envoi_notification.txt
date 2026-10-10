@@ -1,0 +1,47 @@
+# Figure 4 : Envoi d'une Notification
+## Deroulement de l'envoi d'une notification depuis l'interface admin jusqu'au destinataire
+
+Creer un diagramme de sequence simple avec 4 acteurs/lifelines, 3 phases, et 2 branches (Email/SMS). Palette bleu. Pas de code, pas de requetes SQL, pas de protocole technique.
+
+**Lifelines (de gauche a droite) :**
+1. `Administrateur` (icone personnage, #1565C0)
+2. `Systeme` (boite serveur, #42A5F5)
+3. `Service Email` (boite externe, #66BB6A)
+4. `Destinataire` (icone personnage, #FFA726)
+
+**Deroulement :**
+
+**Phase 1 — L'administrateur envoie :**
+  Admin ──▶ Systeme : "Remplit le formulaire et clique Envoyer"
+  Systeme ──▶ Systeme : "Enregistre la notification (statut : en attente)"
+  Systeme ──▶ Admin : "Confirmation : notification en cours d'envoi"
+
+**Phase 2 — Envoi selon le canal choisi :**
+
+  ┌─ Si canal = Email ──────────────────────────┐
+  │  Systeme ──▶ Service Email : "Envoie le message"   │
+  │  Service Email ──▶ Systeme : "Succes (message envoye)" │
+  │  Systeme ──▶ Systeme : "Statut : envoyé"          │
+  └─────────────────────────────────────────────────┘
+
+  ┌─ Si canal = SMS ───────────────────────────┐
+  │  Systeme ──▶ Systeme : "Convertit en SMS et envoie"  │
+  │  Systeme ──▶ Systeme : "Statut : envoye"          │
+  └─────────────────────────────────────────────────┘
+
+  ┌─ Si echec (Email ou SMS) ───────────────────┐
+  │  Systeme ──▶ Systeme : "Nouvelle tentative apres 5 min" │
+  │  Systeme ──▶ Systeme : "Statut : echec (apres 3 essais)" │
+  └─────────────────────────────────────────────────┘
+
+**Phase 3 — Le destinataire recoit :**
+  Service Email ──▶ Destinataire : "Email recu dans sa boite"
+  (ou)
+  Systeme ──▶ Destinataire : "SMS recu sur son telephone"
+
+**Phase 4 — Retour a l'administrateur :**
+  Systeme ──▶ Admin : "Notification visible dans la liste (statut : envoye / delivre / echec)"
+
+**Note :** Chaque lifeline a une barre d'activation verticale (rectangle gris) qui debute quand elle recoit un message et se termine quand elle repond. Le temps s'ecoule du haut vers le bas.
+
+**Pied de page :** "Envoi d'une notification — Urbain Sustainability System PFE 2026. Le systeme tente l'envoi par le canal choisi, reessaie en cas d'echec, et informe l'administrateur du resultat."

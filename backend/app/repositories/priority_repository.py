@@ -10,7 +10,6 @@ from sqlalchemy.orm import selectinload
 
 from app.repositories.base import BaseRepository
 from app.models.priority import Priority, PriorityLevel, SeverityLevel, UrgencyLevel, ImpactLevel
-from app.models.signal import SignalStatus
 from app.schemas.priority import PriorityCreate, PriorityUpdate
 
 
@@ -233,8 +232,8 @@ class PriorityRepository(BaseRepository[Priority, PriorityCreate, PriorityUpdate
             and_(
                 Signal.priority_id == priority_id,
                 Signal.status.in_([
-                    SignalStatus.IN_PROGRESS,
-                    SignalStatus.ASSIGNED
+                    "escalated",  # À adapter selon les statuts réels
+                    "overdue"
                 ])
             )
         )
@@ -385,8 +384,8 @@ class PriorityRepository(BaseRepository[Priority, PriorityCreate, PriorityUpdate
                 Priority.priority_level,
                 func.count(Signal.id).label("total_signals"),
                 func.avg(
-                    func.extract("epoch", Signal.resolved_at) - 
-                    func.extract("epoch", Signal.created_at)
+                    func.extract("epoch from", Signal.resolved_at) - 
+                    func.extract("epoch from", Signal.created_at)
                 ).label("avg_resolution_hours")
             )
             .join(Signal, Priority.id == Signal.priority_id)

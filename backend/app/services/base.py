@@ -153,6 +153,7 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         Génère un numéro de référence unique
         """
         import uuid
+        from datetime import datetime
         
         timestamp = datetime.now().strftime("%Y%m%d")
         unique_id = str(uuid.uuid4())[:8].upper()

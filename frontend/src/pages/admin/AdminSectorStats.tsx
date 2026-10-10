@@ -10,7 +10,7 @@ export default function AdminSectorStats() {
 
   useEffect(() => {
     admin.sectorStats()
-      .then((r) => setSectors(r.data.data?.sectors || []))
+      .then((r) => setSectors(r.data.data || []))
       .catch(() => toast("Failed to load sector statistics", "error"))
       .finally(() => setLoading(false));
   }, [toast]);

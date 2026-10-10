@@ -289,65 +289,64 @@ class NotificationRepository(BaseRepository[Notification, NotificationCreate, No
         """
         Calcule les statistiques des notifications
         """
-        query = select(Notification)
+        base = select(Notification)
         
         # Application des filtres pour les statistiques
         if filters:
+            if "user_id" in filters:
+                base = base.where(Notification.user_id == filters["user_id"])
             if "notification_type" in filters:
                 if isinstance(filters["notification_type"], list):
-                    query = query.where(Notification.notification_type.in_(filters["notification_type"]))
+                    base = base.where(Notification.notification_type.in_(filters["notification_type"]))
                 else:
-                    query = query.where(Notification.notification_type == filters["notification_type"])
+                    base = base.where(Notification.notification_type == filters["notification_type"])
             
             if "start_date" in filters:
-                query = query.where(Notification.created_at >= filters["start_date"])
+                base = base.where(Notification.created_at >= filters["start_date"])
             
             if "end_date" in filters:
-                query = query.where(Notification.created_at <= filters["end_date"])
+                base = base.where(Notification.created_at <= filters["end_date"])
         
-        subq = query.subquery()
+        subq = base.subquery()
         
         # Statistiques par type
-        type_query = select(
-            subq.c.notification_type,
-            func.count(subq.c.id).label("count")
-        ).select_from(subq).group_by(subq.c.notification_type)
-        
-        type_result = await self.db.execute(type_query)
-        type_stats = {row.notification_type.value: row.count for row in type_result}
+        type_result = await self.db.execute(
+            select(subq.c.notification_type, func.count(subq.c.id).label("count"))
+            .group_by(subq.c.notification_type)
+        )
+        type_stats = {}
+        for row in type_result:
+            type_stats[row.notification_type.value if hasattr(row.notification_type, 'value') else row.notification_type] = row.count
         
         # Statistiques par canal
-        channel_query = select(
-            subq.c.channel,
-            func.count(subq.c.id).label("count")
-        ).select_from(subq).group_by(subq.c.channel)
-        
-        channel_result = await self.db.execute(channel_query)
-        channel_stats = {row.channel.value: row.count for row in channel_result}
+        channel_result = await self.db.execute(
+            select(subq.c.channel, func.count(subq.c.id).label("count"))
+            .group_by(subq.c.channel)
+        )
+        channel_stats = {}
+        for row in channel_result:
+            channel_stats[row.channel.value if hasattr(row.channel, 'value') else row.channel] = row.count
         
         # Statistiques par statut
-        status_query = select(
-            subq.c.status,
-            func.count(subq.c.id).label("count")
-        ).select_from(subq).group_by(subq.c.status)
-        
-        status_result = await self.db.execute(status_query)
-        status_stats = {row.status.value: row.count for row in status_result}
+        status_result = await self.db.execute(
+            select(subq.c.status, func.count(subq.c.id).label("count"))
+            .group_by(subq.c.status)
+        )
+        status_stats = {}
+        for row in status_result:
+            status_stats[row.status.value if hasattr(row.status, 'value') else row.status] = row.count
         
         # Statistiques générales
-        total_query = select(func.count(subq.c.id)).select_from(subq)
-        total_result = await self.db.execute(total_query)
+        total_result = await self.db.execute(select(func.count(subq.c.id)))
         total_notifications = total_result.scalar()
         
-        # Temps moyen de livraison
-        delivery_time_query = select(
-            func.avg(
-                func.extract("epoch", subq.c.delivered_at) - 
-                func.extract("epoch", subq.c.sent_at)
-            ).label("avg_delivery_time_seconds")
-        ).select_from(subq).where(subq.c.status == NotificationStatus.DELIVERED)
-        
-        delivery_time_result = await self.db.execute(delivery_time_query)
+        # Temps moyen de livraison (no group by needed - single aggregate)
+        delivery_time_result = await self.db.execute(
+            select(func.avg(
+                func.extract("epoch", subq.c.delivered_at) - func.extract("epoch", subq.c.sent_at)
+            ).label("avg_delivery_time_seconds"))
+            .where(subq.c.status == NotificationStatus.DELIVERED)
+        )
         avg_delivery_time = delivery_time_result.scalar()
         
         return {

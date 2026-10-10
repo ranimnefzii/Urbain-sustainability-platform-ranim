@@ -1,0 +1,18 @@
+# Figure 15 : Page de Connexion
+## Capture d'ecran de l'interface d'authentification
+
+Creer une capture d'ecran de la page de connexion de l'application Urbain.
+
+**Design :** Split screen — gauche : fond degrade bleu fonce (#0D47A1 a #1565C0) avec illustrations (cercles flous), logo "Urbain" en haut, texte "Systeme de Gestion des Signalements Urbains" en blanc, 3 puces (Signalement rapide, Suivi en temps reel, Notification automatique). Droite : fond blanc, formulaire centre.
+
+**Formulaire :**
+- Champ "Adresse email" avec bordure arrondie (rounded-xl)
+- Champ "Mot de passe" avec bordure arrondie
+- Checkbox "Se souvenir de moi"
+- Lien "Mot de passe oublie ?" en bleu
+- Bouton "Se connecter" bleu fonce, pleine largeur, arrondi
+- Lien "Creer un compte" en bas
+
+**Etat :** Vue initiale, champs vides. Design professionnel, ombres douces.
+
+**Pied :** "Page de connexion — Urbain Sustainability System PFE 2026"

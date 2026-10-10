@@ -1,0 +1,51 @@
+# Figure 5 : Cycle de Vie d'un Signalement
+## Parcours d'un signalement depuis sa creation jusqu'a sa cloture
+
+Creer un diagramme de flux simple avec 6 etapes principales (rectangles arrondis), un point de depart et 3 etats de fin, relies par des fleches orientees. Disposition horizontale en zigzag de gauche a droite. Palette : vert (etats actifs), rouge (etats d'arret), gris (termine). Pas de code, pas de gardes techniques, pas d'actions internes.
+
+**Disposition en lecture (de gauche a droite, haut en bas) :**
+
+```
+[Debut] ──▶ [BROUILLON] ──▶ [SOUMIS] ──▶ [EN COURS] ──▶ [RESOLU] ──▶ [CLOS]
+                    │              │                           │
+                    ▼              ▼                           ▼
+               [ANNULE]       [REJETE]                    [CLOS(auto)]
+```
+
+**Etats :**
+
+1. **BROUILLON** (boite grise #9E9E9E, en haut a gauche) :
+   - Le citoyen commence a saisir son signalement mais ne l'a pas encore envoye
+   - Transition : "Le citoyen soumet le formulaire" ──▶ SOUMIS
+   - Transition : "Le citoyen abandonne" ──▶ ANNULE (boite rouge #F44336, en bas)
+
+2. **SOUMIS** (boite orange #FF9800, au milieu haut) :
+   - Le signalement est enregistre et en attente de traitement
+   - L'IA le classifie et le priorise automatiquement
+   - Transition : "Un agent prend en charge le signalement" ──▶ EN COURS
+   - Transition : "L'administrateur juge le signalement non valide" ──▶ REJETE (boite rouge #E53935, en bas)
+   - Transition : "Le citoyen retire son signalement" ──▶ ANNULE
+
+3. **EN COURS** (boite bleue #1565C0, a droite) :
+   - L'agent municipal travaille sur la resolution du probleme
+   - Transition : "L'agent resout le probleme et le documente" ──▶ RESOLU
+
+4. **RESOLU** (boite verte #4CAF50, en bas a droite) :
+   - Le probleme a ete resolu, le citoyen est notifie
+   - Transition : "L'administrateur confirme la cloture" ──▶ CLOS (boite grise #757575, en bas a droite)
+   - Transition automatique : "Apres 7 jours sans action" ──▶ CLOS
+
+5. **CLOS** (boite gris fonce #616161, etat final) :
+   - Le dossier est archive, plus d'action possible
+   - C'est l'etat final normal du signalement
+
+**Etats terminaux (cercles avec bordure epaisse) :**
+   - ANNULE : Le citoyen a retire son signalement avant traitement
+   - REJETE : Le signalement a ete juge non valide par l'administrateur
+   - CLOS : Le signalement a ete traite et archive
+
+**Fleches (epaisseur 2pt, couleur #1565C0) :**
+   Fleche pleine : action humaine (citoyen, agent ou admin)
+   Fleche pointillee : action automatique (delai expire, systeme)
+
+**Pied de page :** "Cycle de vie d'un signalement — Urbain Sustainability System PFE 2026. Du depot a la cloture, chaque signalement suit un parcours clair avec des interventions humaines et automatiques."

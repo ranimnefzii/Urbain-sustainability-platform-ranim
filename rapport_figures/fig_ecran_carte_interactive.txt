@@ -1,0 +1,23 @@
+# Figure 19 : Carte Interactive des Signalements
+## Capture d'ecran de la carte interactive avec clustering et heatmap
+
+Creer une capture d'ecran de la carte interactive Leaflet montrant les signalements sur la ville de Tunis.
+
+**Disposition :**
+- Pleine largeur avec barre laterale gauche (fond blanc)
+- Carte OpenStreetMap occupant la majorite de l'ecran
+
+**Elements sur la carte :**
+- Marqueurs couleur par statut : rouge (critique), orange (haute priorite), jaune (moyenne), vert (resolu)
+- Clustering : groupes de marqueurs avec nombre
+- Heatmap : zone de chaleur montrant la densite des signalements
+- Cercle de localisation utilisateur en bleu pointille
+
+**Barre laterale gauche :**
+- Filtres : statut, categorie, priorite, periode
+- Champ de recherche d'adresse
+- Liste des signalements a proximite avec hover qui surligne sur la carte
+
+**Onglets en haut :** Explorateur, Carte thermique, Clusters, Geocoding. L'onglet "Explorateur" actif.
+
+**Pied :** "Carte interactive — Urbain Sustainability System PFE 2026"

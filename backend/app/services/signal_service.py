@@ -120,6 +120,9 @@ class SignalService(BaseService[Signal, SignalCreate, SignalUpdate]):
             obj_data = obj_in.model_dump()
             location = obj_data.pop("location", {})
 
+            requested_status = str(obj_data.get("status") or "DRAFT").upper()
+            initial_status = SignalStatus.SUBMITTED if requested_status == "SUBMITTED" else SignalStatus.DRAFT
+
             ref_number = await self._generate_reference_number()
 
             signal = Signal(
@@ -148,7 +151,7 @@ class SignalService(BaseService[Signal, SignalCreate, SignalUpdate]):
                 affected_area_sqm=obj_data.get("affected_area_sqm"),
                 safety_risk_level=obj_data.get("safety_risk_level"),
                 source=SignalSource.WEB,
-                status=SignalStatus.DRAFT,
+                status=initial_status,
                 verification_status=VerificationStatus.PENDING
             )
 
@@ -156,7 +159,7 @@ class SignalService(BaseService[Signal, SignalCreate, SignalUpdate]):
             await self.db.commit()
             await self.db.refresh(signal)
 
-            signal =             signal = await self._run_ai_classification(signal)
+            signal = await self._run_ai_classification(signal)
 
             from app.models.user import User
             user = await self.db.get(User, user_id)

@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     AI_CONFIDENCE_THRESHOLD: float = 0.7
     
     # CORS Configuration
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
+    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]
     
     # File Upload Configuration
     MAX_FILE_SIZE: int = 10485760  # 10MB

@@ -7,7 +7,7 @@ import enum
 from typing import Optional, List
 from fastapi import UploadFile, File
 from fastapi import APIRouter, Depends, Query, status
-from sqlalchemy import func, select, inspect
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 import structlog
 
@@ -31,19 +31,15 @@ logger = structlog.get_logger()
 router = APIRouter()
 
 
-def _is_loaded(signal, attr_name):
-    insp = inspect(signal)
-    return attr_name not in insp.unloaded
-
 def _serialize_signal(signal):
     data = {}
     for c in signal.__table__.columns:
         val = getattr(signal, c.name)
         data[c.name] = val.value if isinstance(val, enum.Enum) else val
-    data["created_by_user"] = _orm_to_dict(signal.created_by_user) if _is_loaded(signal, 'created_by_user') and signal.created_by_user else None
-    data["processed_by_user"] = _orm_to_dict(signal.processed_by_user) if _is_loaded(signal, 'processed_by_user') and signal.processed_by_user else None
-    data["category"] = _orm_to_dict(signal.category) if _is_loaded(signal, 'category') and signal.category else None
-    data["priority"] = _orm_to_dict(signal.priority) if _is_loaded(signal, 'priority') and signal.priority else None
+    data["created_by_user"] = _orm_to_dict(signal.created_by_user) if signal.created_by_user else None
+    data["processed_by_user"] = _orm_to_dict(signal.processed_by_user) if signal.processed_by_user else None
+    data["category"] = _orm_to_dict(signal.category) if signal.category else None
+    data["priority"] = _orm_to_dict(signal.priority) if signal.priority else None
     return SignalResponse.model_validate(data).model_dump()
 
 def _serialize_signals(signals):
@@ -54,7 +50,7 @@ def _orm_to_dict(obj):
 
 
 @router.post(
-    "/",
+    "",
     response_model=dict,
     status_code=status.HTTP_201_CREATED,
     summary="Create new signal",
@@ -81,7 +77,7 @@ async def create_signal(
 
 
 @router.get(
-    "/",
+    "",
     response_model=dict,
     summary="List signals",
     description="Get paginated list of signals with optional filters"
@@ -523,7 +519,7 @@ async def add_signal_media(
             uploaded_urls.append(result["file_url"])
 
         result = await signal_service.add_media(
-            signal_id=signal_id, media_type="image",
+            signal_id=signal_id, media_type="images",
             media_urls=uploaded_urls, user_id=current_user.id
         )
         if not result:
@@ -531,7 +527,7 @@ async def add_signal_media(
         return {
             "success": True,
             "message": f"{len(uploaded_urls)} file(s) uploaded successfully",
-            "data": {"urls": uploaded_urls, "signal": result}
+            "data": {"urls": uploaded_urls, "signal": _serialize_signal(result)}
         }
     except NotFoundError:
         raise

@@ -1,0 +1,71 @@
+# Figure 7 : Pipeline IA — Classification et Priorisation
+## Parcours d'un signalement dans le systeme d'intelligence artificielle
+
+Creer un diagramme de pipeline horizontal en 5 etapes avec fleches de flux, 3 sorties finales et un badge performance. Palette : violet (entree), bleu (traitement), vert (resultats). Style propre, pas de code ni de parametres techniques.
+
+**Etape 1 — Entree** (boite violette #7B1FA2, a gauche) :
+  ┌──────────────────────┐
+  │  Signalement saisi   │
+  │  par le citoyen      │
+  │  [Texte + Photo +    │
+  │   Localisation]      │
+  └──────────┬───────────┘
+             ▼
+
+**Etape 2 — Pretraitement** (boite bleue #2196F3) :
+  ┌──────────────────────────────────┐
+  │  Nettoyage du texte              │
+  │  (minuscules, ponctuation, mots  │
+  │   vides, reduction des mots)     │
+  └──────────┬───────────────────────┘
+             ▼
+
+**Etape 3 — Classification** (boite bleu-vert #00ACC1) :
+  ┌──────────────────────────────────┐
+  │  Analyse du contenu              │
+  │  → Determine la categorie       │
+  │  (Infrastructure, Environnement, │
+  │   Securite, Services, Admin)     │
+  └──────┬───────────────────────────┘
+         │
+         ├──▶ **Sortie 1 : Categorie** (boite verte #2E7D32)
+         │     ex: "Degradation de la route" → Infrastructure
+         │
+         ▼
+
+**Etape 4 — Priorisation** (boite orange #FF9800) :
+  ┌──────────────────────────────────┐
+  │  Calcul du niveau d'urgence      │
+  │  base sur : severite, impact     │
+  │  sur la population, urgence      │
+  │  → Score de 1 a 10              │
+  └──────┬───────────────────────────┘
+         │
+         ├──▶ **Sortie 2 : Priorite** (boite orange #E65100)
+         │     4 niveaux : Critique, Haute, Moyenne, Faible
+         │     ex: Nid-de-poule avenue principale → Haute
+         │
+         ▼
+
+**Etape 5 — Detection et Tendances** (boite rouge #D32F2F) :
+  ┌──────────────────────────────────┐
+  │  Detection des signalements      │
+  │  inhabituels (anomalies)         │
+  │  Prediction des tendances        │
+  │  (volumes prevus a 7/30/90 jrs) │
+  └──────┬───────────────────────────┘
+         │
+         ├──▶ **Sortie 3 : Alerte** (boite rouge #B71C1C)
+         │     ex: "Pic de signalements anormal dans ce secteur"
+         │
+         └──▶ **Sortie 4 : Tendances** (boite rouge #C62828)
+               ex: "Prevision : +25% signalements ce mois"
+
+**Badge Performance** (en haut a droite, fond vert #4CAF50, texte blanc, arrondi) :
+  ┌──────────────────┐
+  │  Precision : 85% │
+  │  Classification  │
+  │  automatique     │
+  └──────────────────┘
+
+**Pied de page :** "Pipeline IA — Urbain Sustainability System PFE 2026. Le systeme analyse, classe et priorise automatiquement chaque signalement en quelques secondes."

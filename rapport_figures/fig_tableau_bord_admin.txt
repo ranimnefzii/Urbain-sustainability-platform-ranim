@@ -1,0 +1,56 @@
+# Figure 8 : Tableau de Bord Administrateur — Interface d'Administration
+**Maquette d'écran complète du tableau de bord admin**
+
+Créer un dashboard administratif complet (vue large 1600×900 px), thème moderne avec fond blanc/gris clair et barre latérale sombre #1A237E.
+
+**Barre latérale gauche** (largeur ~250px, #1A237E texte blanc) :
+- Logo en haut : icône balance + "Urbain" en gras
+- Menu vertical avec items : Tableau de bord (actif, fond #283593), Signalements, Catégories, Priorités, Secteurs, Notifications, Rapports, Analytics, Utilisateurs, Audit Logs, Paramètres
+- En bas : avatar admin + "Admin" + icône déconnexion
+
+**En-tête** (barre horizontale #FFFFFF, ombre légère) :
+- Titre gauche : "Bonjour, Admin" + sous-titre "Voici votre vue d'ensemble du jour"
+- Droite : barre de recherche + icône notification + datetime
+
+**Zone 1 — KPIs (4 cartes en ligne, largeur chacun 22%, fond blanc #FFFFFF) :**
+1. "Signalements Totaux" — 1,247 (icône signal + vert #4CAF50), badge "▲ +18 aujourd'hui"
+2. "Nouveaux Aujourd'hui" — 18 (icône horloge, orange #FF9800), badge "▲ +5 vs hier"
+3. "Résolus" — 892 (icône check, vert #4CAF50), badge "71.5% taux de résolution"
+4. "Temps Moyen de Réponse" — 4.2h (icône feuille de temps, bleu #2196F3)
+
+Chaque carte a : icône, titre, valeur en grand, variation en petit en bas. Ombre portée subtile.
+
+**Zone 2 — Graphique des Tendances** (gauche, 60% de large, fond blanc) :
+- Titre : "Tendances des Signalements (30 derniers jours)"
+- Graphique en courbe (Recharts LineChart) :
+  - Axe X : dates "01/06", "05/06", ... "30/06"
+  - Axe Y : nombre de signalements (0-50)
+  - 2 courbes : "Soumis" en bleu (#2196F3, ligne pleine) et "Résolus" en vert (#4CAF50, ligne pointillé)
+  - Points de données avec hint tooltip
+  - Zone remplie sous les courbes avec opacité 0.1
+
+**Zone 3 — Distribution des Priorités** (droite, 35% de largeur, fond blanc) :
+- Titre : "Répartition par Priorité"
+- Diagramme circulaire (PieChart) :
+  - Parts : CRITICAL 12% (rouge #F44336), HIGH 23% (orange #FF9800), MEDIUM 35% (jaune #FFC107), LOW 25% (bleu #2196F3), INFO 5% (gris #9E9E9E)
+  - Légende interactive à droite, valeurs absolues
+  - Part centrale : texte "1,247 total"
+
+**Zone 4 — Performance des Secteurs** (tableau, fond blanc, largeur 100%) :
+- Titre : "Performance des Secteurs Municipaux"
+- Tableau (7 colonnes) : Secteur | Taux de Résolution | Temps Moyen | Score Satisfaction | Efficacité | Signalements traités | Statut
+- Lignes fictives avec données réalistes :
+  - Eau & Assainissement : 92% | 3.1h | 4.5/5 | 88% | 158 | barre verte
+  - Routes & Transport : 78% | 6.7h | 3.8/5 | 72% | 203 | barre orange
+  - Déchets & Propreté : 95% | 2.4h | 4.7/5 | 91% | 312 | barre verte
+  - Éclairage Public : 85% | 4.2h | 4.1/5 | 81% | 97 | barre verte
+  - Espaces Verts : 88% | 5.8h | 4.3/5 | 83% | 64 | barre jaune
+
+**Zone 5 — Notifications Récentes** (panneau bas, 100% largeur) :
+- Titre : "Notifications Récentes" avec bouton "→ Nouvelle Notification"
+- Liste de 4 notifications avec : icône canal (📧 / 📱), titre, destinataire, statut (🟢 / 🟡 / 🔴), date
+- Petit formulaire d'envoi : dropdown canal (Email/SMS/WhatsApp), champ "À", sujet, message, bouton "Envoyer"
+
+**Pied de page** (neutre) : "Urbain Sustainability System v2.0 | PFE 2026 | Données mises à jour en temps réel"
+
+Palette couleurs complète : primaire #1565C0, secondaire #1E88E5, succès #43A047, danger #E53935, avertissement #FB8C00, info #039BE5. Typography : Inter ou Roboto pour les titres, system-ui pour le contenu.

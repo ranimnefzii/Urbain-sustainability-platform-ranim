@@ -1,0 +1,59 @@
+# Figure 12 : Workflow de Traitement d'un Signalement — Interface Utilisateur
+**Maquette d'écran du workflow en 9 états avec actions et timeline**
+
+Créer une maquette d'interface utilisateur montrant le processus complet du cycle de vie d'un signalement, avec barre de progression horizontale en haut, actions disponibles par état, et timeline verticale des événements sur le côté.
+
+**En-tête de l'écran :**
+- Titre : "Signalement #SIG-202606-A78D3F — Nid-de-poule rue Habib Thameur"
+- Badge de statut actuel : "EN COURS DE TRAITEMENT" (fond #FF9800, texte blanc)
+- Priorité : badge "HAUTE" (rouge #D32F2F)
+- Catégorie : "Infrastructure — Routes" (icône route)
+
+**Barre de progression (Workflow) — 9 étapes horizontales, connectées par flèches :**
+
+Étapes (cercles numérotés 1-9, largeur) :
+1️⃣ DRAFT (gris) — trait gris → 2️⃣ SUBMITTED (bleu #42A5F5) — trait bleu → 3️⃣ UNDER_REVIEW (orange) — trait orange →
+4️⃣ ASSIGNED (bleu marine) — trait bleu foncé → 5️⃣ IN_PROGRESS (barre bleue active, plus grande) ← actif courant →
+6️⃣ RESOLVED (vert) — trait vert → 7️⃣ CLOSED (gris foncé, cercle ◉ final)
+
+**En dessous, rangée 2 :** (décalée vers le bas, venant des états 1/2/3/5)
+↘ **CANCELLED** (rouge #F44336, état terminal, cercle ◉)
+↘ **REJECTED** (rouge #E53935, état terminal, cercle ◉)
+
+**Flèches de transition (colorées) :**
+- SUBMITTED → CANCELLED : flèche rouge, étiquette "Annulé par citoyen"
+- UNDER_REVIEW → CANCELLED : flèche rouge
+- UNDER_REVIEW → REJECTED : flèche rouge, étiquette "Motif : non éligible"
+- IN_PROGRESS → CANCELLED : flèche rouge pointillé (possible si citoyen annule)
+- ASSIGNED/IN_PROGRESS → flèche escalade partant de RESOLUTION_TIME_EXCEEDED (horloge SLA)
+
+**Panneau d'actions (à gauche du contenu principal, fond blanc #FFFFFF) :**
+Actions disponibles pour l'état actuel (boutons stackés) :
+- ✅ ➡ "Commencer le traitement" (bouton bleu #2196F3) — actif
+- 📝 "Ajouter des notes internes" (bouton contour bleu)
+- 📎 "Ajouter des photos de résolution" (bouton contour bleu)
+- 📤 "Résoudre le signalement" (bouton vert #43A047)
+- ❌ "Annuler le signalement" (bouton rouge, discret)
+- ⏫ "Escalader" (bouton orange #FB8C00, avec countdown ⏰ SLA 2h restantes)
+
+**Panneau d'informations (milieu) :**
+- Section "Détails" : description du signalement (150 mots), adresse GPS localisation
+- Section "Média" : vignettes photos (3 photos)
+- Section "Notes internes" : 2 entrées horodatées ("[2026-06-15 14:30] Agent a inspecté les lieux...")
+
+**Timeline verticale (colonne droite, largeur 280px, #F5F5F5) :**
+« Chronologie des événements » — 8 entrées du plus récent au plus ancien :
+🔵 15/06 — 14:30 : Statut changé en "En cours de traitement" — Agent Ahmed
+🟢 15/06 — 10:15 : Assigné à Secteur Routes (Agent Ahmed)
+🟠 14/06 — 08:00 : Classification IA : Infrastructure/Routes (85% confiance)
+🟠 14/06 — 08:00 : Score priorité HAUTE calculé (7.2/10)
+🟣 13/06 — 16:45 : Analyse IA terminée
+🟣 13/06 — 16:42 : En cours d'examen (UNDER_REVIEW)
+🔵 13/06 — 16:30 : Soumis par Seif Abdaoui (citoyen)
+⚫ 13/06 — 16:28 : Brouillon créé
+
+**Pied de carte :** Légende des couleurs d'icône timeline : 🔵 Action, 🟢 Changement statut, 🟠 IA, 🟣 Système, ⚫ Création
+
+**Indicateur SLA :** Barre de progression horizontale en dessous des actions : "Temps restant : 2h 15min / 24h max" (barre orange à 60%)
+
+Encadré titre : "Interface du Workflow Signalement — Urbain Sustainability System. L'utilisateur (admin/secteur) voit les actions disponibles selon le statut actuel et tout l'historique du signalement."

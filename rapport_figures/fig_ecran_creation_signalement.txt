@@ -1,0 +1,18 @@
+# Figure 17 : Creation d'un Signalement
+## Capture d'ecran du formulaire de signalement en 5 etapes
+
+Creer une capture d'ecran du formulaire de creation de signalement avec indicateur d'etapes.
+
+**Design :** Carte blanche arrondie (card) sur fond gris clair. Indicateur de progression horizontal en haut avec 5 etapes : Informations, Localisation, Impact, Medias, Confirmation. L'etape 1 "Informations" est active (cercle bleu).
+
+**Contenu visible :**
+- Titre "Nouveau signalement" avec sous-titre "Signalez un probleme urbain en quelques etapes"
+- Etape 1 active : 3 champs
+  - "Titre du signalement" : champ texte placeholder "Ex : Nid-de-poule avenue Habib Bourguiba"
+  - "Description" : textarea (5 lignes) avec placeholder
+  - "Categorie" : dropdown et "Priorite" : dropdown (optionnel)
+- Boutons en bas : "Annuler" a gauche, "Brouillon" et "Suivant" a droite
+
+**Etat :** Etape 1 active, le reste en gris. Design moderne, champs arrondis, focus bleu.
+
+**Pied :** "Formulaire de signalement — Urbain Sustainability System PFE 2026"

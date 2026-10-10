@@ -1,0 +1,52 @@
+# Figure 6 : Fonctionnalites par Profil d'Utilisateur
+## Mapping des ecrans et actions disponibles pour chaque type d'utilisateur
+
+Creer un diagramme a 3 colonnes verticales representant les 3 profils utilisateurs et les fonctionnalites auxquelles chacun a acces. Chaque colonne est une grande boite avec des icones et du texte court. Palette : bleu (Citoyen), vert (Agent), orange (Administrateur).
+
+**Disposition : 3 colonnes cote a cote, avec fleches reliant certains elements entre colonnes.**
+
+┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐
+│      CITOYEN        │  │  AGENT SECTORIEL    │  │  ADMINISTRATEUR     │
+│  (habit. municipal) │  │  (employe terrain)  │  │  (gestionnaire IT)  │
+├─────────────────────┤  ├─────────────────────┤  ├─────────────────────┤
+│                     │  │                     │  │                     │
+│ [icone+]            │  │ [icone liste]       │  │ [icone users]        │
+│ Creer un            │  │ Consulter les       │  │ Gerer les            │
+│ signalement         │◀─┤ signalements        │  │ utilisateurs        │
+│ (titre, desc,       │  │ assignes            │  │ (roles, permissions)│
+│ photo, localisation)│  │ (trie par priorite) │  │                     │
+│                     │  │                     │  │ [icone settings]     │
+│ [icone map]         │  │ [icone edit]        │  │ Configurer les       │
+│ Voir la carte       │  │ Mettre a jour le    │  │ categories,          │
+│ interactive         │  │ statut du            │  │ priorites et         │
+│ (signalements,      │  │ signalement          │  │ secteurs             │
+│ filtres, heatmap)   │  │ (en cours, resolu)  │  │                     │
+│                     │  │                     │  │ [icone bell]         │
+│ [icone eye]         │  │ [icone note]        │  │ Envoyer des          │
+│ Suivre l'evolution  │  │ Ajouter des notes   │  │ notifications        │
+│ de ses signalements │  │ et photos de         │  │ (Email, SMS,         │
+│ (tableau de bord)   │  │ resolution (avant/  │  │ groupees ou          │
+│                     │  │ apres)              │  │ individuelles)      │
+│ [icone star]        │  │                     │  │                     │
+│ Donner un feedback  │  │ [icone check]       │  │ [icone chart]        │
+│ de satisfaction     │  │ Cloturer le dossier  │  │ Consulter le         │
+│ (note 1 a 5)        │  │                     │  │ tableau de bord      │
+│                     │  │                     │  │ analytique           │
+└─────────────────────┘  └─────────────────────┘  │ (KPIs, tendances,    │
+                                                   │ hotspots)            │
+                                                   │                     │
+                                                   │ [icone history]     │
+                                                   │ Voir les logs       │
+                                                   │ d'audit et          │
+                                                   │ l'historique        │
+                                                   │ des actions         │
+                                                   └─────────────────────┘
+
+**Fleches de liaison entre colonnes :**
+
+  Citoyen ── "signale un probleme" ──▶ Agent recoit le signalement dans sa liste
+  Agent   ── "resout le probleme" ──▶ Citoyen recoit notification de resolution
+  Admin   ── "configure les categories" ──▶ Agent utilise ces categories pour classer
+  Admin   ── "assigne les agents aux secteurs" ──▶ Agent voit ses signalements sectoriels
+
+**Pied de page :** "Fonctionnalites par profil d'utilisateur — Urbain Sustainability System PFE 2026. Chaque profil dispose d'une interface adaptee a ses besoins : le citoyen signale et suit, l'agent traite et resout, l'administrateur configure et analyse."

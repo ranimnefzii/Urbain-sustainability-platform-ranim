@@ -3,6 +3,7 @@ Signal Repository - Urbain Sustainability System
 Repository pour la gestion des signalements
 """
 
+import math
 from typing import Optional, List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func, desc, asc
@@ -18,12 +19,56 @@ class SignalRepository(BaseRepository[Signal, SignalCreate, SignalUpdate]):
     Repository pour les opérations CRUD sur les signalements
     """
     
-    async def get_by_reference_number(self, *, reference_number: str) -> Optional[Signal]:
-        """
-        Récupère un signalement par son numéro de référence
-        """
+    async def get_multi(self, *, skip: int = 0, limit: int = 100,
+                        filters: Optional[Dict[str, Any]] = None,
+                        order_by: Optional[str] = None,
+                        sort_order: Optional[str] = None) -> List[Signal]:
+        query = select(self.model).options(
+            selectinload(Signal.created_by_user),
+            selectinload(Signal.processed_by_user),
+            selectinload(Signal.category),
+            selectinload(Signal.priority),
+        )
+        if filters:
+            for key, value in filters.items():
+                if hasattr(self.model, key):
+                    if isinstance(value, list):
+                        query = query.where(getattr(self.model, key).in_(value))
+                    else:
+                        query = query.where(getattr(self.model, key) == value)
+        if order_by and hasattr(self.model, order_by):
+            order_col = getattr(self.model, order_by)
+            if sort_order == "asc":
+                query = query.order_by(order_col)
+            else:
+                query = query.order_by(desc(order_col))
+        query = query.offset(skip).limit(limit)
+        result = await self.db.execute(query)
+        return result.scalars().all()
+
+    async def get(self, id: int) -> Optional[Signal]:
         result = await self.db.execute(
-            select(Signal).where(Signal.reference_number == reference_number)
+            select(Signal)
+            .options(
+                selectinload(Signal.created_by_user),
+                selectinload(Signal.processed_by_user),
+                selectinload(Signal.category),
+                selectinload(Signal.priority),
+            )
+            .where(Signal.id == id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_by_reference_number(self, *, reference_number: str) -> Optional[Signal]:
+        result = await self.db.execute(
+            select(Signal)
+            .options(
+                selectinload(Signal.created_by_user),
+                selectinload(Signal.processed_by_user),
+                selectinload(Signal.category),
+                selectinload(Signal.priority),
+            )
+            .where(Signal.reference_number == reference_number)
         )
         return result.scalar_one_or_none()
     
@@ -146,6 +191,12 @@ class SignalRepository(BaseRepository[Signal, SignalCreate, SignalUpdate]):
         
         result = await self.db.execute(
             select(Signal)
+            .options(
+                selectinload(Signal.created_by_user),
+                selectinload(Signal.processed_by_user),
+                selectinload(Signal.category),
+                selectinload(Signal.priority),
+            )
             .where(
                 or_(
                     func.lower(Signal.title).like(search_pattern),
@@ -322,10 +373,16 @@ class SignalRepository(BaseRepository[Signal, SignalCreate, SignalUpdate]):
         # Formule de Haversine simplifiée pour la distance
         # En pratique, on utiliserait PostGIS ou une extension géospatiale
         lat_delta = radius_km / 111.0  # Approximation
-        lng_delta = radius_km / (111.0 * abs(latitude))
+        lng_delta = radius_km / (111.0 * math.cos(math.radians(latitude)))
         
         result = await self.db.execute(
             select(Signal)
+            .options(
+                selectinload(Signal.created_by_user),
+                selectinload(Signal.processed_by_user),
+                selectinload(Signal.category),
+                selectinload(Signal.priority),
+            )
             .where(
                 and_(
                     Signal.latitude >= (latitude - lat_delta),
@@ -360,32 +417,31 @@ class SignalRepository(BaseRepository[Signal, SignalCreate, SignalUpdate]):
             if "end_date" in filters:
                 query = query.where(Signal.created_at <= filters["end_date"])
         
-        # Statistiques par statut
         subq = query.subquery()
+
+        # Statistiques par statut
         status_query = select(
             subq.c.status,
             func.count(subq.c.id).label("count")
-        ).select_from(subq).group_by(subq.c.status)
-        
+        ).group_by(subq.c.status)
+
         status_result = await self.db.execute(status_query)
-        status_stats = {}
-        for row in status_result:
-            s = row.status
-            if hasattr(s, 'value'):
-                s = s.value
-            status_stats[s] = row.count
-        
+        status_stats = {
+            (row.status.name if hasattr(row.status, "name") else str(row.status)): row.count
+            for row in status_result
+        }
+
         # Statistiques par catégorie
         category_query = select(
             subq.c.category_id,
             func.count(subq.c.id).label("count")
-        ).select_from(subq).group_by(subq.c.category_id)
-        
+        ).group_by(subq.c.category_id)
+
         category_result = await self.db.execute(category_query)
         category_stats = {row.category_id: row.count for row in category_result}
-        
+
         # Statistiques générales
-        total_query = select(func.count(subq.c.id)).select_from(subq)
+        total_query = select(func.count(subq.c.id))
         total_result = await self.db.execute(total_query)
         total_signals = total_result.scalar()
         

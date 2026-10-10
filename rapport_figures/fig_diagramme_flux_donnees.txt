@@ -1,0 +1,106 @@
+# Figure 9 : Diagramme de Flux de Donnees
+## Parcours des donnees dans le systeme Urbain Sustainability — du signalement a la resolution
+
+Creer un diagramme de flux de donnees (DFD) de niveau 1 avec 3 entites externes (en haut/bas), 4 processus (rectangle a coins arrondis), 2 magasins de donnees (cylindre/trapeze), et des fleches orientees etiquetees. Style simplifie, palette bleu/gris. Pas de jargon technique profond — le diagramme doit montrer COMMENT les donnees circulent entre les acteurs et le systeme.
+
+**Entites externes (rectangles, fond #E3F2FD, bordure #1565C0) :**
+
+┌─────────────────────┐    ┌──────────────────────┐    ┌──────────────────────┐
+│     CITOYEN         │    │   AGENT SECTORIEL    │    │   ADMINISTRATEUR     │
+│ (habitant municipal)│    │  (employe municipal) │    │  (gestionnaire IT)   │
+└─────────────────────┘    └──────────────────────┘    └──────────────────────┘
+
+Position : Citoyen en haut a gauche, Agent en haut a droite, Admin en bas a droite.
+
+**Processus (rectangles a coins arrondis, fond #E8F5E9, bordure #2E7D32) :**
+
+┌─────────────────────────────────────────────┐
+│  P1 : CREER UN SIGNALEMENT                  │
+│  Saisie du probleme (titre, description,    │
+│  photo), geolocalisation sur carte,         │
+│  validation des donnees                      │
+└─────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
+│  P2 : CLASSIFIER ET PRIORISER (IA)          │
+│  Analyse automatique du texte (NLP),        │
+│  determination de la categorie et de la     │
+│  priorite, detection d'anomalies            │
+└─────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
+│  P3 : TRAITER LE SIGNALEMENT                │
+│  Revue par l'agent, mise a jour du statut,  │
+│  ajout de notes et photos de resolution,    │
+│  cloture du dossier                          │
+└─────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
+│  P4 : NOTIFIER ET ANALYSER                  │
+│  Envoi de notifications (Email/SMS/WhatsApp │
+│  Generation du tableau de bord et des       │
+│  rapports de performance                    │
+└─────────────────────────────────────────────┘
+
+Position : P1 en haut au centre, P2 a gauche au milieu, P3 a droite au milieu, P4 en bas au centre.
+
+**Magasins de donnees (cylindres/trapezes, fond #F5F5F5, bordure #78909C) :**
+
+┌──────────────────────┐    ┌──────────────────────┐
+│   D1 : Base de       │    │   D2 : Cache         │
+│   donnees principale │    │   temporaire (Redis) │
+│   (PostgreSQL)       │    │   (sessions, files   │
+│                      │    │    d'attente)        │
+└──────────────────────┘    └──────────────────────┘
+
+Position : D1 au centre-gauche, D2 au centre-droit.
+
+**FLUX DE DONNEES (fleches orientees avec etiquette) :**
+
+De Citoyen vers P1 :
+  ──▶ "Donnees du signalement (titre, description, localisation, photos)"
+
+De P1 vers D1 :
+  ──▶ "INSERT Signal {reference, titre, description, coordonnees, statut=SUBMITTED}"
+
+De P1 vers P2 :
+  ──▶ "Texte du signalement + coordonnees pour analyse IA"
+
+De P2 vers D1 :
+  ──▶ "UPDATE Signal {categorie, priorite, scores_ia, anomalies}"
+
+De D1 vers P3 :
+  ──▶ "Liste des signalements assignes (trie par priorite/date)"
+
+De P3 vers D1 :
+  ──▶ "UPDATE Signal {statut, notes, photos_resolution, date_traitement}"
+
+De P3 vers P4 :
+  ──▶ "Declencheur notification (changement de statut)"
+
+De P4 vers D1 :
+  ──▶ "INSERT Notification {canal, statut_envoi, destinataire, date}"
+
+De P4 vers Citoyen :
+  ──▶ "Notification email/SMS (confirmation creation, mise a jour statut)"
+
+De P4 vers Agent :
+  ──▶ "Notification (nouveau signalement assigne, escalation)"
+
+De D1 vers P4 :
+  ──▶ "Donnees agregees pour KPIs et graphiques"
+
+De P4 vers Admin :
+  ──▶ "Tableau de bord (KPIs, tendances, cartes de chaleur, rapports)"
+
+De P4 vers D2 :
+  ──▶ "Cache des donnees frequemment accedees"
+
+De D2 vers P4 :
+  ──▶ "Donnees en cache pour affichage rapide"
+
+**Note de coherence avec le Diagramme de Classes (Figure 3) :**
+Le diagramme de classes (Figure 3) montre la STRUCTURE statique des donnees (entites, attributs, relations). Ce diagramme de flux (Figure 9) montre le COMPORTEMENT dynamique : comment les donnees circulent entre les acteurs, les processus et les bases. Ensemble, ils offrent une vision complete du systeme : QUOI (structure) + COMMENT (flux).
+
+**Pied de page :**
+"Diagramme de Flux de Donnees (DFD Niveau 1) — Urbain Sustainability System PFE 2026. Les donnees circulent du citoyen vers le systeme, sont transformees par l'IA et les agents, et restituees sous forme de notifications et de rapports."

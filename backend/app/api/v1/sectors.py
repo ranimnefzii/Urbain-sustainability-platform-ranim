@@ -36,7 +36,7 @@ def _serialize_sector(sector: Sector) -> Dict[str, Any]:
 
 
 @router.post(
-    "/",
+    "",
     response_model=dict,
     status_code=status.HTTP_201_CREATED,
     summary="Create sector",
@@ -63,7 +63,7 @@ async def create_sector(
 
 
 @router.get(
-    "/",
+    "",
     response_model=dict,
     summary="List sectors",
     description="Get all sectors with optional filtering"

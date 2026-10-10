@@ -22,7 +22,7 @@ logger = structlog.get_logger()
 router = APIRouter()
 
 
-@router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED,
+@router.post("", response_model=dict, status_code=status.HTTP_201_CREATED,
              summary="Create priority", description="Create a new priority level (admin only)")
 async def create_priority(
     data: PriorityCreate,
@@ -42,7 +42,7 @@ async def create_priority(
         raise ValidationError("Failed to create priority")
 
 
-@router.get("/", response_model=dict, summary="List priorities",
+@router.get("", response_model=dict, summary="List priorities",
              description="Get all priority levels")
 async def list_priorities(
     priority_level: Optional[int] = Query(None, ge=1, le=5, description="Filter by level"),

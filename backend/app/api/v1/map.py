@@ -81,7 +81,7 @@ async def get_clusters(
     lat_max: float = Query(..., ge=-90, le=90, description="Maximum latitude"),
     lng_min: float = Query(..., ge=-180, le=180, description="Minimum longitude"),
     lng_max: float = Query(..., ge=-180, le=180, description="Maximum longitude"),
-    zoom_level: int = Query(12, ge=1, le=20, description="Map zoom level"),
+    zoom_level: float = Query(12.0, ge=1.0, le=20.0, description="Map zoom level"),
     cluster_radius: int = Query(50, ge=20, le=200, description="Cluster radius in pixels"),
     db: AsyncSession = Depends(get_db)
 ):
@@ -130,7 +130,7 @@ async def get_map_data(
     lat: float = Query(..., ge=-90, le=90, description="Center latitude"),
     lng: float = Query(..., ge=-180, le=180, description="Center longitude"),
     radius_km: float = Query(5.0, ge=0.1, le=100, description="Search radius"),
-    zoom_level: int = Query(12, ge=1, le=20, description="Zoom level"),
+    zoom_level: float = Query(12.0, ge=1.0, le=20.0, description="Zoom level"),
     days: int = Query(30, ge=1, le=365, description="Heatmap period"),
     db: AsyncSession = Depends(get_db)
 ):
@@ -143,19 +143,28 @@ async def get_map_data(
             "lng_min": lng - half,
             "lng_max": lng + half
         }
-        heatmap, clusters, nearby = await asyncio.gather(
-            service.get_heatmap_data(bounds, days=days, grid_size=0.01),
-            service.get_cluster_data(bounds, zoom_level=zoom_level, cluster_radius=50),
-            service.get_nearby_signals(lat, lng, radius_km=radius_km, limit=100),
-            return_exceptions=True
-        )
+        try:
+            heatmap = await service.get_heatmap_data(bounds, days=days, grid_size=0.01)
+        except Exception as e:
+            logger.warning("Heatmap failed", error=str(e))
+            heatmap = None
+        try:
+            clusters = await service.get_cluster_data(bounds, zoom_level=zoom_level, cluster_radius=50)
+        except Exception as e:
+            logger.warning("Clusters failed", error=str(e))
+            clusters = None
+        try:
+            nearby = await service.get_nearby_signals(lat, lng, radius_km=radius_km, limit=100)
+        except Exception as e:
+            logger.warning("Nearby failed", error=str(e))
+            nearby = None
         result = {
             "center": {"latitude": lat, "longitude": lng},
             "radius_km": radius_km,
             "bounds": bounds,
-            "heatmap": heatmap if not isinstance(heatmap, Exception) else None,
-            "clusters": clusters if not isinstance(clusters, Exception) else None,
-            "nearby": nearby if not isinstance(nearby, Exception) else None,
+            "heatmap": heatmap,
+            "clusters": clusters,
+            "nearby": nearby,
         }
         return {"success": True, "message": "Map data retrieved", "data": result}
     except Exception as e:

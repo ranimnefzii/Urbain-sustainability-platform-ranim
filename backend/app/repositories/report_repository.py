@@ -239,9 +239,8 @@ class ReportRepository(BaseRepository[Report, ReportCreate, ReportUpdate]):
         result = await self.db.execute(
             select(Report)
             .options(
-                selectinload(Report.generated_by_user),
-                selectinload(Report.signal),
-                selectinload(Report.reports)
+                selectinload(Report.generator),
+                selectinload(Report.signal)
             )
             .where(Report.id == report_id)
         )
@@ -334,38 +333,44 @@ class ReportRepository(BaseRepository[Report, ReportCreate, ReportUpdate]):
                 query = query.where(Report.created_at <= filters["end_date"])
         
         subq = query.subquery()
-        
+
         # Statistiques par type
         type_query = select(
             subq.c.report_type,
             func.count(subq.c.id).label("count")
-        ).select_from(subq).group_by(subq.c.report_type)
-        
+        ).group_by(subq.c.report_type)
+
         type_result = await self.db.execute(type_query)
-        type_stats = {row.report_type.value: row.count for row in type_result}
-        
+        type_stats = {
+            (row.report_type.value if hasattr(row.report_type, "value") else str(row.report_type)): row.count
+            for row in type_result
+        }
+
         # Statistiques par statut
         status_query = select(
             subq.c.status,
             func.count(subq.c.id).label("count")
-        ).select_from(subq).group_by(subq.c.status)
-        
+        ).group_by(subq.c.status)
+
         status_result = await self.db.execute(status_query)
-        status_stats = {row.status.value: row.count for row in status_result}
-        
+        status_stats = {
+            (row.status.value if hasattr(row.status, "value") else str(row.status)): row.count
+            for row in status_result
+        }
+
         # Statistiques générales
-        total_query = select(func.count(subq.c.id)).select_from(subq)
+        total_query = select(func.count(subq.c.id))
         total_result = await self.db.execute(total_query)
         total_reports = total_result.scalar()
-        
+
         # Temps moyen de génération
         time_query = select(
             func.avg(
-                func.extract("epoch", subq.c.generated_at) - 
+                func.extract("epoch", subq.c.generated_at) -
                 func.extract("epoch", subq.c.created_at)
             ).label("avg_generation_time_seconds")
-        ).select_from(subq).where(subq.c.status == ReportStatus.COMPLETED)
-        
+        ).where(subq.c.status == ReportStatus.COMPLETED)
+
         time_result = await self.db.execute(time_query)
         avg_generation_time = time_result.scalar()
         

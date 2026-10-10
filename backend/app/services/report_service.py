@@ -476,7 +476,7 @@ class ReportService(BaseService[Report, ReportCreate, ReportUpdate]):
             report = await self.get_report(report_id)
 
             try:
-                rf = ReportFrequency(frequency)
+                rf = ReportFrequency(str(frequency).lower())
             except ValueError:
                 raise ValidationError(f"Invalid frequency: {frequency}")
 

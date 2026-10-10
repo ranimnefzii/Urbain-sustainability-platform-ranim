@@ -23,6 +23,7 @@ import ReportManagement from "./pages/admin/ReportManagement";
 import NotificationManagement from "./pages/admin/NotificationManagement";
 import AuditLog from "./pages/admin/AuditLog";
 import AIInsights from "./pages/admin/AIInsights";
+import AIPipeline from "./pages/admin/AIPipeline";
 import UserDetail from "./pages/admin/UserDetail";
 import MapHub from "./pages/map/MapHub";
 import ReportsHub from "./pages/reports/ReportsHub";
@@ -109,6 +110,7 @@ function App() {
                 <Route path="/admin/audit-log" element={<AdminRoute><AuditLog /></AdminRoute>} />
                 <Route path="/admin/ai" element={<AdminRoute><AIInsights /></AdminRoute>} />
                 <Route path="/admin/ai-insights" element={<AdminRoute><AIInsights /></AdminRoute>} />
+                <Route path="/admin/ai/pipeline" element={<AdminRoute><AIPipeline /></AdminRoute>} />
                 <Route path="/admin/stats/overview" element={<AdminHubRoute />} />
                 <Route path="/admin/stats/users" element={<AdminHubRoute />} />
                 <Route path="/admin/stats/sectors" element={<AdminHubRoute />} />

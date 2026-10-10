@@ -5,7 +5,7 @@ Modèle utilisateur pour citoyens, administrateurs et secteurs
 
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -15,17 +15,17 @@ from app.core.database import Base
 
 class UserRole(enum.Enum):
     """Rôles utilisateurs"""
-    CITIZEN = "CITIZEN"
-    ADMIN = "ADMIN"
-    SECTOR = "SECTOR"
+    CITIZEN = "citizen"
+    ADMIN = "admin"
+    SECTOR = "sector"
 
 
 class UserStatus(enum.Enum):
     """Statuts utilisateurs"""
-    ACTIVE = "ACTIVE"
-    INACTIVE = "INACTIVE"
-    SUSPENDED = "SUSPENDED"
-    PENDING_VERIFICATION = "PENDING_VERIFICATION"
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    SUSPENDED = "suspended"
+    PENDING_VERIFICATION = "pending_verification"
 
 
 class User(Base):
@@ -66,7 +66,7 @@ class User(Base):
     preferred_language = Column(String(10), default="fr", nullable=False)
     
     # Secteur (pour les utilisateurs sectoriels)
-    sector_id = Column(Integer, ForeignKey("sectors.id"), nullable=True, index=True)
+    sector_id = Column(Integer, nullable=True, index=True)
     
     # Vérification et sécurité
     is_email_verified = Column(Boolean, default=False, nullable=False)

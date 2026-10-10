@@ -1,0 +1,23 @@
+# Tableau 1 : Technologies Utilisees
+## Outils et environnements employes dans le projet
+
+Creer un tableau de 5 colonnes et 10 lignes, entete bleu #1565C0 texte blanc, sans lignes verticales. Alignement simple, propre.
+
+**En-tetes :** Categorie | Technologie | Usage | Type
+
+**Lignes (10 technologies essentielles) :**
+
+1 | Frontend | React avec TypeScript | Interface web interactive et cartes | Framework web
+2 | Backend | FastAPI (Python) | API REST du systeme | Framework serveur
+3 | Base de donnees | PostgreSQL | Stockage de toutes les donnees | Base relationnelle
+4 | Cartographie | Leaflet | Affichage de la carte interactive | Bibliotheque carte
+5 | Authentification | JWT | Connexion et securite des comptes | Protocole auth
+6 | Frontend CSS | Tailwind CSS | Design et mise en page | Framework CSS
+7 | Intelligence Artificielle | Python (scikit-learn) | Classification et priorisation | Bibliotheque ML
+8 | Tests | pytest | Tests de validation | Outil de test
+9 | Emails | SMTP (Gmail) | Envoi de notifications | Service email
+10 | Versioning | Git / GitHub | Suivi des versions du code | Outil version
+
+**Note :** Toutes les technologies sont open-source et gratuites. Le backend utilise Python, le frontend utilise TypeScript. Aucun outil payant n'est necessaire au fonctionnement du systeme.
+
+**Pied de tableau :** *Stack technologique du projet Urbain Sustainability System — PFE 2026. Technologies open-source adaptees a un projet de fin d'etudes.*

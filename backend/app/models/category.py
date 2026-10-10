@@ -5,7 +5,7 @@ Modèle pour les catégories de problèmes urbains
 
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum, Text, JSON, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum, Text, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -45,7 +45,7 @@ class Category(Base):
     description = Column(Text, nullable=True)
     
     # Hiérarchie
-    parent_id = Column(Integer, ForeignKey("categories.id"), nullable=True, index=True)  # Pour sous-catégories
+    parent_id = Column(Integer, nullable=True, index=True)  # Pour sous-catégories
     level = Column(Integer, default=1, nullable=False)  # Niveau hiérarchique
     sort_order = Column(Integer, default=0, nullable=False)
     
@@ -97,8 +97,7 @@ class Category(Base):
     
     # Relations
     signals = relationship("Signal", back_populates="category")
-    parent = relationship("Category", back_populates="subcategories", remote_side=[id], foreign_keys=[parent_id])
-    subcategories = relationship("Category", back_populates="parent", foreign_keys=[parent_id])
+    # subcategories relationship disabled - needs FK constraint on parent_id
     
     def __repr__(self):
         return f"<Category(id={self.id}, name={self.name}, type={self.category_type.value})>"
@@ -110,9 +109,7 @@ class Category(Base):
     
     @property
     def full_name(self) -> str:
-        """Retourne le nom complet avec hiérarchie"""
-        if self.parent:
-            return f"{self.parent.name} > {self.name}"
+        """Retourne le nom complet"""
         return self.name
     
     @property

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 618 975" width="80" height="126">
+  <rect width="618" height="975" fill="#daa520"/>
+  <path d="M309,160 L309,0" stroke="#000" stroke-width="2"/>
+  <circle cx="309" cy="80" r="70" fill="none" stroke="#000" stroke-width="2"/>
+  <circle cx="309" cy="80" r="50" fill="none" stroke="#000" stroke-width="2"/>
+  <text x="309" y="95" text-anchor="middle" font-size="50" fill="#c00">&#9733;</text>
+  <path d="M 280,80 A 40,40 0 1,1 340,80" fill="none" stroke="#c00" stroke-width="4"/>
+  <path d="M 280,80 A 40,40 0 1,0 340,80" fill="none" stroke="#c00" stroke-width="4"/>
+  <path d="M 250,200 L 250,300 Q 309,260 370,300 L 370,200 Z" fill="#c0392b" stroke="#000" stroke-width="2"/>
+  <rect x="150" y="350" width="320" height="180" fill="#daa520" stroke="#000" stroke-width="2"/>
+  <text x="310" y="420" text-anchor="middle" font-size="24" font-family="serif" fill="#000">&#9878; &#9878; &#9878;</text>
+  <path d="M 250,480 Q 309,440 370,480" fill="none" stroke="#000" stroke-width="2"/>
+  <line x1="200" y1="500" x2="420" y2="500" stroke="#000" stroke-width="1"/>
+  <text x="310" y="530" text-anchor="middle" font-size="18" font-family="serif" fill="#000">&#8606; &#8617; &#8606;</text>
+  <ellipse cx="309" cy="600" rx="120" ry="60" fill="none" stroke="#000" stroke-width="2"/>
+  <line x1="309" y1="540" x2="309" y2="660" stroke="#000" stroke-width="1"/>
+  <path d="M 200,550 L 190,700 L 430,700 L 420,550" fill="#daa520" stroke="#000" stroke-width="2"/>
+  <text x="310" y="630" text-anchor="middle" font-size="14" font-family="serif" fill="#000">&#9813; &#9813; &#9813; &#9813; &#9813;</text>
+  <text x="310" y="680" text-anchor="middle" font-size="16" font-family="serif" fill="#000">&#9733; &#9733; &#9733; &#9733; &#9733;</text>
+</svg>

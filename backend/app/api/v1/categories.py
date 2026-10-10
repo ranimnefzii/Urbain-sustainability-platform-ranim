@@ -45,7 +45,7 @@ def _serialize_category(cat) -> Dict[str, Any]:
 
 
 @router.post(
-    "/",
+    "",
     response_model=dict,
     status_code=status.HTTP_201_CREATED,
     summary="Create category",
@@ -72,7 +72,7 @@ async def create_category(
 
 
 @router.get(
-    "/",
+    "",
     response_model=dict,
     summary="List all categories",
     description="Get all categories with optional filtering"

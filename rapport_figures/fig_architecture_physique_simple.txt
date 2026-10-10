@@ -1,0 +1,63 @@
+# Figure 14 : Architecture Physique du Systeme
+## Schema montrant comment utilisateurs, serveur et services externes sont connectes
+
+Creer un schema d'architecture physique simple et visuel. Utiliser des icones claires (personnages, ecrans, serveur, nuage, enveloppe), des boites arrondies avec peu de texte, et des fleches orientees. Palette professionnelle bleu/gris.
+
+**Disposition spatiale (de gauche a droite) :**
+
+┌─ UTILISATEURS ──┐       ┌─ RESEAU ──┐       ┌─ SERVEUR ────┐       ┌─ EXTERNE ──┐
+│ [icone perso]   │       │           │       │              │       │            │
+│   Citoyen       │       │  INTERNET │       │  Serveur     │       │  Gmail     │
+│  (smartphone)   │──────▶│           │──────▶│  Principal   │──────▶│  SMTP      │
+│                 │       │  [nuage]  │       │              │       │            │
+│ [icone perso]   │       │           │       │ [icone rack] │       │ [enveloppe]│
+│   Agent         │       │    ┌──┐   │       │              │       └────────────┘
+│  (PC bureau)    │       │    │🔥│   │       │ 3 services   │
+│                 │       │    └──┘   │       │  installes   │
+│ [icone perso]   │       │  Firewall │       │  sur 1 seul  │
+│   Admin         │       │           │       │  serveur     │
+│  (PC portable)  │       └───────────┘       └──────────────┘
+└─────────────────┘
+
+**Details a dessiner :**
+
+1. **Zone Utilisateurs (a gauche, fond bleu clair #E3F2FD)** :
+   - 3 personnages avec icone d'appareil a cote (smartphone, ecran fixe, laptop)
+   - Etiquettes : "Citoyen", "Agent municipal", "Administrateur"
+   - Fleche commune vers la droite : "Connexion Internet (Wi-Fi, 4G, Ethernet)"
+
+2. **Zone Reseau (au centre-gauche, fond gris clair #F5F5F5)** :
+   - Nuage "Internet" avec icone globe
+   - Petit rectangle rouge "Firewall" (icone bouclier 🔒)
+   - Fleche entre Internet et Firewall : "Trafic HTTPS"
+   - Fleche du Firewall vers le Serveur : "Requetes autorisees"
+
+3. **Zone Serveur (au centre-droit, fond bleu fonce #1565C0, texte blanc)** :
+   - Boite "SERVEUR PRINCIPAL" avec icone serveur/rack
+   - A l'interieur, 3 icones plus petites cote a cote :
+     ■ API (icone engrenage)
+     ■ Base de donnees (icone cylindre)
+     ■ Cache (icone éclair)
+   - En dessous : etiquette "3 services - 1 machine"
+   - Fleche pointant vers la droite
+
+4. **Zone Services Externes (a droite, fond vert clair #E8F5F9)** :
+   - Boite "Envoi d'emails" (icone enveloppe, Gmail)
+   - A cote : boite "Envoi de SMS" (icone telephone)
+   - Fleche depuis le Serveur vers chaque boite
+
+**Fleches principales (epaisseur 2pt, couleur #1565C0) :**
+  Utilisateurs ──▶ Internet (HTTPS)
+  Internet ──▶ Firewall (port 443)
+  Firewall ──▶ Serveur (requetes autorisees)
+  Serveur ──▶ Email Gmail (SMTP port 587)
+  Serveur ──▶ SMS gateway (email-to-SMS)
+
+**Ce qui est volontairement SIMPLIFIE (pas de details techniques) :**
+- Pas de systeme d'exploitation, RAM, stockage, version de logiciel
+- Pas de port numerique autre que HTTPS et SMTP
+- Pas de distinction entre Docker, VM ou installation directe
+- Pas de nom d'image, de reseau Docker, de healthcheck
+- Pas de Redis, Celery, Gunicorn, Workers
+
+**Pied de page :** "Architecture Physique — Urbain Sustainability System PFE 2026. Le systeme fonctionne sur un seul serveur accessible depuis tout appareil connecte a Internet."
