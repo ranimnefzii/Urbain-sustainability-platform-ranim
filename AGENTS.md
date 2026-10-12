@@ -9,6 +9,18 @@ Fix the web app dashboard pages (Tableau de bord `/` and admin Dashboard `/admin
 - Login response nests the token: `data.access_token` (not `access_token`)
 
 ## Progress
+### Round 9 (full Docker setup + SETUP_GUIDE.txt) — DONE
+- **Goal**: run the WHOLE app on another PC that only has Docker (`docker compose up --build -d`).
+- **Docker pieces added/updated**:
+  - `docker-compose.yml`: backend `environment` overrides so in-container connections use service names (`db:5432`, `redis:6379`, DEBUG=true); new `frontend` service (nginx, host port `5173:80`).
+  - `frontend/Dockerfile`: multi-stage `node:20-alpine` build (`npm ci` + `npm run build`) → `nginx:1.27-alpine` serving `dist/`.
+  - `frontend/nginx.conf`: proxies `/api/` and `/uploads/` → `http://backend:8000`, SPA fallback for routes.
+  - `backend/requirements.txt`: **added `asyncpg==0.30.0`** (was only in the local venv — container would fail to start without it).
+  - `backend/.dockerignore` + `frontend/.dockerignore`: exclude `.env`, logs, uploads, node_modules.
+  - `backend/scripts/init_db_seed.py`: idempotent seeder for a FRESH DB — admin (`admin@urbain.com`/`Admin123!`), demo citizen (`citoyen@urbain.com`/`Citoyen123!`), 5 priorities, 7 categories, 9 sectors. Run via `docker compose exec backend python -m scripts.init_db_seed`. **Verified end-to-end against a disposable `postgres:15` on :5434** (create_all + seed + idempotent re-run + role stored as NAME `ADMIN`).
+  - `SETUP_GUIDE.txt` (repo root): full clone→run walkthrough (Windows PowerShell + Linux), .env creation, build/verify/seed steps, URL/account table, everyday commands, reset, troubleshooting.
+- Note: frontend uses relative `/api/v1` base (no `VITE_API_URL`) so nginx same-origin proxy works; tables auto-created by FastAPI lifespan on startup.
+
 ### Round 8 (dashboard pages empty) — DONE
 - **Symptom**: both `Tableau de bord` (`/` → `Dashboard.tsx`) and admin `Dashboard` (`/admin` → `AdminDashboard.tsx`) showed empty/zero data.
 - **Root cause A (shape mismatch)**: `GET /admin/dashboard` (and `/admin/stats/overview`) returned a nested shape `{overview, period_stats, daily_trend}` but every frontend consumer expects a **flat** shape (`total_signals`, `open_signals`, `resolved_signals`, `signals_by_status`, `signals_by_priority`, `signals_by_category`, `sector_performance`, `top_categories`, `recent_signals`, `total_users`, `active_users`, `avg_resolution_time_hours`, `citizen_satisfaction_rate`). So all KPIs were 0/`N/A` and chart sections never rendered. Fixed `AnalyticsService.get_dashboard_stats` (`analytics_service.py`) to **add the flat fields** (kept the nested keys for backward-compat). `ActionCenter.tsx` also benefits (it reads `signals_by_status["SUBMITTED"]`).
@@ -94,6 +106,11 @@ Fix the web app dashboard pages (Tableau de bord `/` and admin Dashboard `/admin
 All backend endpoints return valid responses. Notification system fully functional with real email delivery and SMS via email-to-SMS gateways (mock fallback). Reports page loads and all report types generate successfully.
 
 ## Files Modified This Session
+- `backend/scripts/init_db_seed.py`: NEW idempotent seeder (admin + demo citizen + 5 priorities + 7 categories + 9 sectors)
+- `SETUP_GUIDE.txt`: NEW full Docker clone→run guide (repo root)
+- `frontend/Dockerfile`, `frontend/nginx.conf`, `frontend/.dockerignore`, `backend/.dockerignore`: NEW Docker pieces
+- `docker-compose.yml`: backend env overrides (service-name DB/Redis URLs, DEBUG=true) + `frontend` service (`5173:80`)
+- `backend/requirements.txt`: added `asyncpg==0.30.0`
 - `backend/app/services/analytics_service.py`: `get_dashboard_stats` now returns the flat dashboard fields (added `UserStatus` import)
 - `backend/app/repositories/signal_repository.py`: fixed `get_signal_statistics` GROUP BY/subquery bug (`subq.c.*`, `.group_by`), status keys `.name` (uppercase)
 - `backend/app/models/report.py`: added ~40 missing mapped columns (the DB table already had them) + `avg_resolution_time_hours` Integer→Float; `mark_as_failed` uses `report_metadata`
