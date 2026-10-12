@@ -1,0 +1,205 @@
+================================================================================
+ URBRAIN SUSTAINABILITY SYSTEM — FULL LOCAL SETUP GUIDE (Docker)
+ Branch: ranim-nefzi  |  Repo: https://github.com/ranimnefzii/Urbain-sustainability-platform-ranim
+================================================================================
+
+This guide installs the WHOLE application on a fresh PC using Docker only:
+  - Backend  (FastAPI/Python)        -> http://localhost:8000
+  - Frontend (React + nginx)         -> http://localhost:5173   <-- open this
+  - Database (PostgreSQL 15)         -> localhost:5433
+  - Redis (cache / background tasks) -> localhost:6379
+
+Required on the target PC:
+  - Docker Desktop (Windows/Mac) or Docker Engine + docker compose (Linux)
+    * Windows: enable WSL 2 backend (default in recent Docker Desktop).
+  - Git (https://git-scm.com)
+  - Internet connection (first build downloads ~3-4 GB of images/dependencies).
+
+----------------------------------------------------------------------------
+ STEP 1 — INSTALL PREREQUISITES
+----------------------------------------------------------------------------
+  Windows:  install Docker Desktop -> https://www.docker.com/products/docker-desktop/
+            install Git           -> https://git-scm.com/download/win
+            Start "Docker Desktop" and wait until the whale icon shows "Engine running".
+
+  Linux (Ubuntu/Debian example):
+            sudo apt update && sudo apt install -y git docker.io docker-compose-v2
+            sudo usermod -aG docker $USER
+            # log out and back in so the docker group applies
+
+  Check everything is ready, then move on:
+            docker --version
+            docker compose version
+            git --version
+
+----------------------------------------------------------------------------
+ STEP 2 — CLONE THE PROJECT
+----------------------------------------------------------------------------
+  Windows PowerShell (cd to where you want the project, e.g. C:\Users\<you>):
+            git clone https://github.com/ranimnefzii/Urbain-sustainability-platform-ranim.git
+            cd Urbain-sustainability-platform-ranim
+
+  Linux / macOS:
+            git clone https://github.com/ranimnefzii/Urbain-sustainability-platform-ranim.git
+            cd Urbain-sustainability-platform-ranim
+
+----------------------------------------------------------------------------
+ STEP 3 — SWITCH TO THE WORKING BRANCH
+----------------------------------------------------------------------------
+            git checkout ranim-nefzi
+
+  (This branch contains all the latest fixes described in the project report.)
+
+----------------------------------------------------------------------------
+ STEP 4 — CREATE THE BACKEND .env FILE
+----------------------------------------------------------------------------
+  The docker-compose file loads backend/.env (it is NOT stored in git for security).
+  Create it from the example.
+
+  Windows PowerShell:
+            Copy-Item backend\.env.example backend\.env
+
+  Linux / macOS:
+            cp backend/.env.example backend/.env
+
+  Then open backend/.env in a text editor and change AT LEAST this line
+  (any random string is fine, 32+ characters recommended):
+            SECRET_KEY=your-super-secret-key-change-this-in-production
+
+  OPTIONAL (emails / SMS):
+    - SMTP_USERNAME / SMTP_PASSWORD: a Gmail address + Gmail "App password".
+      If you leave them empty, the app still works and notification emails are
+      simply logged to the console instead of sent.
+    - GOOGLE_MAPS_API_KEY: only needed for the Google Maps search/geocoding
+      endpoints; the interactive Leaflet map works without it.
+
+  DO NOT edit DATABASE_URL / REDIS_URL / CELERY_* here. docker-compose
+  automatically overrides them so the containers talk to each other.
+
+----------------------------------------------------------------------------
+ STEP 5 — BUILD AND START EVERYTHING
+----------------------------------------------------------------------------
+            docker compose up --build -d
+
+  Notes:
+    - Run this from the project root (the folder that contains docker-compose.yml).
+    - FIRST build is slow (10-30+ minutes depending on your machine) because it
+      downloads and installs Python machine-learning libraries (PyTorch,
+      transformers, scikit-learn) and builds the React app. Later builds are fast.
+    - -d = detached (keeps running after the command returns).
+    - The backend creates its database tables automatically on first start.
+
+  Watch the live logs of the backend while it boots:
+            docker compose logs --tail=100 -f backend
+  (Press Ctrl+C to stop following the logs — this does NOT stop the containers.)
+
+----------------------------------------------------------------------------
+ STEP 6 — VERIFY THE CONTAINERS ARE UP
+----------------------------------------------------------------------------
+            docker compose ps
+
+  Expected: all four services (backend, frontend, db, redis) should be "Up"
+  and db/redis "healthy".
+
+  Health checks:
+    - Backend API:  http://localhost:8000/health      -> {"status":"healthy",...}
+    - API docs:     http://localhost:8000/docs        (Swagger UI)
+    - Frontend:     http://localhost:5173             (the app)
+
+  If a container exited, look at its logs:
+            docker compose logs backend
+
+----------------------------------------------------------------------------
+ STEP 7 — CREATE THE ADMIN ACCOUNT AND DEFAULT DATA (one time)
+----------------------------------------------------------------------------
+  A fresh database has no users yet. Seed the default admin, a demo citizen,
+  the 5 priorities, 7 categories and 9 municipal sectors:
+
+            docker compose exec backend python -m scripts.init_db_seed
+
+  You should see lines like "[seed] admin user created ..." and finally
+  "Seeding complete".
+
+  Login accounts (used later):
+            Admin  : admin@urbain.com   / Admin123!
+            Citizen: citoyen@urbain.com / Citoyen123!
+
+----------------------------------------------------------------------------
+ STEP 8 — USE THE APPLICATION
+----------------------------------------------------------------------------
+  1. Open http://localhost:5173 in a browser.
+  2. Log in as the admin (admin@urbain.com / Admin123!) to see the admin
+     dashboard, user/notification/report management and the AI pipeline.
+  3. Log out, then register a citizen account from the login page
+     (Citizen page -> "Inscription") or log in as the demo citizen
+     (citoyen@urbain.com / Citoyen123!) to create signalements on the map,
+     upload photos, follow statuses, etc.
+
+  URL summary:
+            Frontend app   : http://localhost:5173
+            Backend API    : http://localhost:8000/api/v1
+            Swagger UI     : http://localhost:8000/docs
+            PostgreSQL     : localhost:5433 (user=username password=password db=urbain_sustainability)
+            Redis          : localhost:6379
+            Uploaded files : served under http://localhost:5173/uploads/...
+
+----------------------------------------------------------------------------
+ STEP 9 — EVERYDAY COMMANDS
+----------------------------------------------------------------------------
+  Show status of all services:
+            docker compose ps
+
+  See real-time logs:
+            docker compose logs -f --tail=100 backend
+            docker compose logs -f --tail=100 frontend
+
+  Stop everything (keeps your data):
+            docker compose stop
+
+  Start again:
+            docker compose start
+
+  Rebuild after pulling new code (code changes to backend or frontend):
+            git pull
+            docker compose up --build -d
+
+  Total reset (DELETES database + uploaded files + logs):
+            docker compose down -v
+            docker compose up --build -d
+            docker compose exec backend python -m scripts.init_db_seed
+
+----------------------------------------------------------------------------
+ STEP 10 — TROUBLESHOOTING
+----------------------------------------------------------------------------
+  "service 'backend' refers to undefined file ./backend/.env"
+      -> You forgot STEP 4. Create backend/.env from backend/.env.example.
+
+  Ports already in use (8000, 5173, 5433, 6379)
+      -> Another program uses them. Edit docker-compose.yml and change the
+         LEFT side of the mapping, e.g. "5173:80" -> "8080:80", then restart:
+         docker compose up -d
+
+  Backend keeps restarting / shows connection errors to "db"
+      -> Wait for the db healthcheck to pass (it takes a few seconds). If it
+         persists, check: docker compose logs db   and   docker compose logs backend
+
+  "Cannot connect to the Docker daemon"
+      -> Docker Engine is not running. Start Docker Desktop first.
+
+  Build fails with a memory error (Linux, building the backend image)
+      -> Reduce the chance of OOM: stop other apps, or add to docker-compose
+         backend service:      mem_limit: 8g
+         and on Linux also free space / increase swap before building.
+
+  Uploaded images don't display
+      -> They are served through nginx at /uploads/... which proxies to the
+         backend container. Confirm the backend is healthy (STEP 6).
+
+  I changed a .env value but nothing happened
+      -> Environment changes need a container (re)creation:
+         docker compose up -d
+
+----------------------------------------------------------------------------
+ DONE — the application is now fully installed and running.
+ For questions about the code, see AGENTS.md / the PFE report (RAPPORT_PFE_URBAIN.md).
+================================================================================

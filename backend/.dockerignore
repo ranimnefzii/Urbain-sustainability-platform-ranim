@@ -1,0 +1,10 @@
+.env
+*.log
+uvicorn_*.txt
+job_*.txt
+backend_job.log
+uploads
+logs
+__pycache__
+*.pyc
+.pytest_cache
